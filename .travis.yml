@@ -1,0 +1,28 @@
+sudo: required
+
+language: bash
+
+services:
+  - docker
+
+env:
+  # build against multiple versions of spark!
+  - SPARK_VERSION=1.4.1
+  - SPARK_VERSION=1.5.2
+  - SPARK_VERSION=1.6.0
+
+before_script:
+  # generate environment file so we can give the travis environment to our test container
+  - env | grep TRAVIS_ > travis.env
+  - echo "GRADLE_OPTS=-Dorg.gradle.native=false" >> travis.env
+  - echo "CI_NAME=travis_ci" >> travis.env
+  - echo "CI=true" >> travis.env
+  - echo "TRAVIS=true" >> travis.env
+  - echo "CONTINUOUS_INTEGRATION=true" >> travis.env
+  - echo "DEBIAN_FRONTEND=noninteractive" >> travis.env
+  - echo "HAS_JOSH_K_SEAL_OF_APPROVAL" >> travis.env
+  - echo $SPARK_VERSION >> travis.env
+
+script:
+  # run test container
+  - docker run --env-file travis.env -v $(pwd)/src/test/resources/log4j.properties:/usr/local/spark/conf/log4j.properties -v $(pwd):/opt/pipeline-twitter-ops --rm --workdir="/opt/pipeline-twitter-ops" uncharted/sparklet:$SPARK_VERSION ./gradlew coverage coveralls
