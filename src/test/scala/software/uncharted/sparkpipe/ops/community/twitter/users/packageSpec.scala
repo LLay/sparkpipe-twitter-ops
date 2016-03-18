@@ -14,15 +14,22 @@
  * limitations under the License.
  */
 
-package software.uncharted.sparkpipe.ops.core.dataframe.io
+package software.uncharted.sparkpipe.ops.community.twitter.users
+
+import org.apache.spark.sql.{SQLContext, DataFrame}
+import software.uncharted.sparkpipe.{Pipe, ops, Spark}
+import org.scalatest._
 
 class PackageSpec extends FunSpec {
   describe("ops.community.twitter.users") {
-    // Make the RDD form the sample json
 
-    describe("#read()") {
-      it("should have the correct _____ column") {
+    describe("USER_SCHEMA") {
+      it("should match expected schema") {
+        val FILE_PATH = "src/test/resources/sample-user.json"
+        val pipe = Pipe(Spark.sqlContext).to(ops.core.dataframe.io.read(path = FILE_PATH, format = "json"))
 
+        assert(pipe.run.schema.equals(USER_SCHEMA))
+      }
     }
   }
 }

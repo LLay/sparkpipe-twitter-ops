@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package software.uncharted.sparpipe.ops.community.twitter
+package software.uncharted.sparkpipe.ops.community.twitter
 
 import org.apache.spark.sql.{SQLContext, DataFrame}
-import org.apache.spark.sql.types.{StructType, StructField, BooleanType, StringType, LongType}
-
-import software.uncharted.sparkpipe.ops.core.dataframe.io._
+import org.apache.spark.sql.types.{StructType, StructField, BooleanType, StringType, LongType, ArrayType, DoubleType}
+import software.uncharted.sparkpipe.ops.core.dataframe.io.read
 
 /**
  * This package contains a twitter pipeline operations for Spark
@@ -26,6 +25,24 @@ import software.uncharted.sparkpipe.ops.core.dataframe.io._
  */
 package object users {
 
+  // scalastyle:off  line.size.limit multiple.string.literals
   val USER_SCHEMA = StructType(Seq(StructField("contributors_enabled",BooleanType,true), StructField("created_at",StringType,true), StructField("default_profile",BooleanType,true), StructField("default_profile_image",BooleanType,true), StructField("description",StringType,true), StructField("favourites_count",LongType,true), StructField("follow_request_sent",BooleanType,true), StructField("followers_count",LongType,true), StructField("following",BooleanType,true), StructField("friends_count",LongType,true), StructField("geo_enabled",BooleanType,true), StructField("id",LongType,true), StructField("id_str",StringType,true), StructField("is_translator",BooleanType,true), StructField("lang",StringType,true), StructField("listed_count",LongType,true), StructField("location",StringType,true), StructField("name",StringType,true), StructField("notifications",BooleanType,true), StructField("profile_background_color",StringType,true), StructField("profile_background_image_url",StringType,true), StructField("profile_background_image_url_https",StringType,true), StructField("profile_background_tile",BooleanType,true), StructField("profile_image_url",StringType,true), StructField("profile_image_url_https",StringType,true), StructField("profile_link_color",StringType,true), StructField("profile_sidebar_border_color",StringType,true), StructField("profile_sidebar_fill_color",StringType,true), StructField("profile_text_color",StringType,true), StructField("profile_use_background_image",BooleanType,true), StructField("protected",BooleanType,true), StructField("screen_name",StringType,true), StructField("show_all_inline_media",BooleanType,true), StructField("status",StructType(Seq(StructField("contributors",StringType,true), StructField("coordinates",StringType,true), StructField("created_at",StringType,true), StructField("favorited",BooleanType,true), StructField("geo",StringType,true), StructField("id",LongType,true), StructField("id_str",StringType,true), StructField("in_reply_to_screen_name",StringType,true), StructField("in_reply_to_status_id",LongType,true), StructField("in_reply_to_status_id_str",StringType,true), StructField("in_reply_to_user_id",LongType,true), StructField("in_reply_to_user_id_str",StringType,true), StructField("place",StringType,true), StructField("retweet_count",LongType,true), StructField("retweeted",BooleanType,true), StructField("source",StringType,true), StructField("text",StringType,true), StructField("truncated",BooleanType,true))),true), StructField("statuses_count",LongType,true), StructField("time_zone",StringType,true), StructField("url",StringType,true), StructField("utc_offset",LongType,true), StructField("verified",BooleanType,true)))
+  // scalastyle:on
 
+  /**
+  * Create a DataFrame from an input data source ... containing tweets from the twitter rest api]
+  *
+  * @param path A format-specific location String for the source data
+  * @param format Specifies the input data source format (parquet by default)
+  * @param options A Map[String, String] of options
+  * @return a DataFrame createad from the specified source
+  */
+  def read(
+    path: String,
+    format: String = "parquet",
+    options: Map[String, String] = Map[String, String](),
+    schema: StructType = new StructType(Array[StructField]())
+  )(sqlContext: SQLContext): DataFrame = {
+    read(path, format, options, USER_SCHEMA)(sqlContext)
+  }
 }
