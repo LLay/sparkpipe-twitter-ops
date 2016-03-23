@@ -25,4 +25,4 @@ before_script:
 
 script:
   # run test container
-  - docker run --env-file travis.env -v $(pwd)/src/test/resources/log4j.properties:/usr/local/spark/conf/log4j.properties -v $(pwd):/opt/pipeline-twitter-ops --rm --workdir="/opt/pipeline-twitter-ops" uncharted/sparklet:$SPARK_VERSION ./gradlew coverage coveralls
+  - docker run --env-file travis.env -v $(pwd)/src/test/resources/log4j.properties:/usr/local/spark/conf/log4j.properties -v $(pwd):/opt/sparkpipe-twitter-ops --rm --workdir="/opt/sparkpipe-twitter-ops" uncharted/sparklet:$SPARK_VERSION ./gradlew coverage coveralls

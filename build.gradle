@@ -105,13 +105,13 @@ task testJar(type: Jar) {
 
 task test(overwrite: true, type: Exec, dependsOn: [jar, jarScoverage, testJar, docsJar, scalaStyle]) {
   executable = 'spark-submit'
-  args = ["--packages","org.mockito:mockito-all:1.10.19,org.scalatest:scalatest_${scalaBinaryVersion}:2.2.5,org.scoverage:scalac-scoverage-runtime_${scalaBinaryVersion}:${scoverageVersion}","--jars","/opt/sparkpipe-twitter-ops/build/libs/${artifactName}-${version}-scoverage.jar","--class","software.uncharted.sparkpipe-twitter-ops.Main","build/libs/${artifactName}-${version}-tests.jar"]
+  args = ["--packages","org.mockito:mockito-all:1.10.19,org.scalatest:scalatest_${scalaBinaryVersion}:2.2.5,org.scoverage:scalac-scoverage-runtime_${scalaBinaryVersion}:${scoverageVersion},software.uncharted.sparkpipe:sparkpipe-core:${sparkpipeVersion}","--jars","/opt/sparkpipe-twitter-ops/build/libs/${artifactName}-${version}-scoverage.jar","--class","software.uncharted.sparkpipe.Main","build/libs/${artifactName}-${version}-tests.jar"]
 }
 
 task debug(overwrite: true, type: Exec, dependsOn: [jar, jarScoverage, testJar, docsJar, scalaStyle]) {
   executable = 'spark-submit'
   environment.put 'SPARK_JAVA_OPTS', '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=9999'
-  args = ["--packages","org.scalatest:scalatest_${scalaBinaryVersion}:2.2.5,org.scoverage:scalac-scoverage-runtime_${scalaBinaryVersion}:${scoverageVersion}","--jars","/opt/sparkpipe-twitter-ops/build/libs/${artifactName}-${version}-scoverage.jar","--class","software.uncharted.sparkpipe-twitter-ops.Main","build/libs/${artifactName}-${version}-tests.jar"]
+  args = ["--packages","org.scalatest:scalatest_${scalaBinaryVersion}:2.2.5,org.scoverage:scalac-scoverage-runtime_${scalaBinaryVersion}:${scoverageVersion},software.uncharted.sparkpipe:sparkpipe-core:${sparkpipeVersion}","--jars","/opt/sparkpipe-twitter-ops/build/libs/${artifactName}-${version}-scoverage.jar","--class","software.uncharted.sparkpipe.Main","build/libs/${artifactName}-${version}-tests.jar"]
 }
 
 task coverage(overwrite: true, dependsOn: test) << {

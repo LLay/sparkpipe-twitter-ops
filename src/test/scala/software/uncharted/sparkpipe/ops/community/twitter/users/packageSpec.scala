@@ -14,15 +14,34 @@
  * limitations under the License.
  */
 
-package software.uncharted.sparkpipe.ops.core.dataframe.io
+package software.uncharted.sparkpipe.ops.community.twitter.users
+
+import org.apache.spark.sql.{SQLContext, DataFrame}
+import software.uncharted.sparkpipe.{Pipe, ops, Spark}
+import org.scalatest._
 
 class PackageSpec extends FunSpec {
   describe("ops.community.twitter.users") {
-    // Make the RDD form the sample json
+
+    val path = "src/test/resources/sample-users.json"
+    val format = "json"
 
     describe("#read()") {
-      it("should have the correct _____ column") {
+      it("should pass arguments to the underlying sparkpipe.ops.core.dataframe.io.read() API") {
+        val df = ops.community.twitter.users.read(path, format)(Spark.sqlContext)
 
+        assert(df.schema.equals(USER_SCHEMA)) // is this a duplicate test of TWEET_SCHEMA?
+        assert(df.count == 2)
+        // Other tests?
+      }
+    }
+
+    describe("USER_SCHEMA") {
+      it("should match expected user schema") {
+        val pipe = Pipe(Spark.sqlContext).to(ops.core.dataframe.io.read(path, format))
+
+        assert(pipe.run.schema.equals(USER_SCHEMA))
+      }
     }
   }
 }
