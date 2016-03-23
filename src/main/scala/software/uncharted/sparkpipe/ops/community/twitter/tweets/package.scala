@@ -35,6 +35,7 @@ package object tweets {
   // val ANNOTATION_SCHEMA = None //(docs: unused. future/beta home for status annotations.)
   val CONTRIBUTER_SCHEMA = None
   val COORDINATE_SCHEMA = None
+  val EXTENDED_ENTITY_SCHEMA = None
 
   /**
   * Create a DataFrame from an input data source
