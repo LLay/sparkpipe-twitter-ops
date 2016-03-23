@@ -23,10 +23,22 @@ import org.scalatest._
 class PackageSpec extends FunSpec {
   describe("ops.community.twitter.users") {
 
+    val path = "src/test/resources/sample-users.json"
+    val format = "json"
+
+    describe("#read()") {
+      it("should pass arguments to the underlying sparkpipe.ops.core.dataframe.io.read() API") {
+        val df = ops.community.twitter.users.read(path, format)(Spark.sqlContext)
+
+        assert(df.schema.equals(USER_SCHEMA)) // is this a duplicate test of TWEET_SCHEMA?
+        assert(df.count == 2)
+        // Other tests?
+      }
+    }
+
     describe("USER_SCHEMA") {
       it("should match expected schema") {
-        val FILE_PATH = "src/test/resources/sample-user.json"
-        val pipe = Pipe(Spark.sqlContext).to(ops.core.dataframe.io.read(path = FILE_PATH, format = "json"))
+        val pipe = Pipe(Spark.sqlContext).to(ops.core.dataframe.io.read(path, format))
 
         assert(pipe.run.schema.equals(USER_SCHEMA))
       }

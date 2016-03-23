@@ -18,7 +18,7 @@ package software.uncharted.sparkpipe.ops.community.twitter
 import org.apache.spark.sql.{SQLContext, DataFrame}
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{StructType, StructField, BooleanType, StringType, LongType, ArrayType, DoubleType}
-import software.uncharted.sparkpipe.ops.core.dataframe.io.read
+import software.uncharted.sparkpipe.ops
 import software.uncharted.sparkpipe.ops.core.dataframe.addColumn
 import scala.collection.mutable.{WrappedArray, ArrayBuffer}
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -46,16 +46,14 @@ package object tweets {
   def read(
     path: String,
     format: String = "parquet",
-    options: Map[String, String] = Map[String, String](),
-    schema: StructType = new StructType(Array[StructField]())
+    options: Map[String, String] = Map[String, String]()
   )(sqlContext: SQLContext): DataFrame = {
-    read(path, format, options, TWEET_SCHEMA)(sqlContext)
+    ops.core.dataframe.io.read(path, format, options, TWEET_SCHEMA)(sqlContext)
   }
 
   /**
   * Create a new column in the given dataframe of hashtags present in the tweet text
   *
-  * @param sqlContext A SQLContext in which to run operations
   * @param sourceCol The column from which to get the hashtags (as a string)
   * @param newCol The column into which to put the date (as a string)
   * @param input Input pipeline data to transform

@@ -16,19 +16,29 @@
 
 package software.uncharted.sparkpipe.ops.community.twitter.tweets
 
-import org.apache.spark.sql.{SQLContext, DataFrame}
 import software.uncharted.sparkpipe.{Pipe, ops, Spark}
+import org.apache.spark.sql.{SQLContext, DataFrame}
 import org.scalatest._
-import scala.collection.mutable.WrappedArray
 
 class PackageSpec extends FunSpec {
   describe("ops.community.twitter.tweets") {
 
-  val FILE_PATH = "src/test/resources/sample-tweets.json"
+    val path = "src/test/resources/sample-tweets.json"
+    val format = "json"
+
+    describe("#read()") {
+      it("should pass arguments to the underlying sparkpipe.ops.core.dataframe.io.read() API") {
+        val df = ops.community.twitter.tweets.read(path, format)(Spark.sqlContext)
+
+        assert(df.schema.equals(TWEET_SCHEMA)) // is this a duplicate test of TWEET_SCHEMA?
+        assert(df.count == 3)
+        // Other tests?
+      }
+    }
 
     describe("TWEET_SCHEMA") {
       it("should match expected schema") {
-        val pipe = Pipe(Spark.sqlContext).to(ops.core.dataframe.io.read(path = FILE_PATH, format = "json"))
+        val pipe = Pipe(Spark.sqlContext).to(ops.core.dataframe.io.read(path, format))
 
         assert(pipe.run.schema.equals(TWEET_SCHEMA))
       }
@@ -36,7 +46,7 @@ class PackageSpec extends FunSpec {
 
     describe("#hashtags()") {
       it("should create a new column of hashtags present in the tweet text") {
-        val pipe = Pipe(Spark.sqlContext).to(ops.core.dataframe.io.read(path = FILE_PATH, format="json")).to(hashtags())
+        val pipe = Pipe(Spark.sqlContext).to(ops.core.dataframe.io.read(path, format)).to(hashtags())
         val df = pipe.run
         val actual = df.select("hashtags").collect
         val desired = Array(Seq("freebandnames"), Seq("FreeBandNames", "SecondHashtag"), Seq("freebandnames"))
