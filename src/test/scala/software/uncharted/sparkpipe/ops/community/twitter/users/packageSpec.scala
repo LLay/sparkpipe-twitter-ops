@@ -37,7 +37,7 @@ class PackageSpec extends FunSpec {
     }
 
     describe("USER_SCHEMA") {
-      it("should match expected schema") {
+      it("should match expected user schema") {
         val pipe = Pipe(Spark.sqlContext).to(ops.core.dataframe.io.read(path, format))
 
         assert(pipe.run.schema.equals(USER_SCHEMA))

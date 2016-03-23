@@ -54,8 +54,8 @@ package object tweets {
   /**
   * Create a new column in the given dataframe of hashtags present in the tweet text
   *
-  * @param sourceCol The column from which to get the hashtags (as a string)
-  * @param newCol The column into which to put the date (as a string)
+  * @param newCol The column into which to put the hashtags
+  * @param sourceCol The column from which to get the hashtags
   * @param input Input pipeline data to transform
   * @return the dataframe with a new column containing the hashtags in the tweet
   **/
