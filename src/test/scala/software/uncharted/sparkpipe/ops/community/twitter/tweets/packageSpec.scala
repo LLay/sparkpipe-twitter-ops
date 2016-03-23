@@ -36,15 +36,13 @@ class PackageSpec extends FunSpec {
 
     describe("#hashtags()") {
       it("should create a new column of hashtags present in the tweet text") {
-        val pipe = Pipe(Spark.sqlContext).to(ops.core.dataframe.io.read(path = FILE_PATH, format="json")).to(hashtags(Spark.sqlContext))
+        val pipe = Pipe(Spark.sqlContext).to(ops.core.dataframe.io.read(path = FILE_PATH, format="json")).to(hashtags())
         val df = pipe.run
         val actual = df.select("hashtags").collect
-        val desired = Array(Seq("freebandnames"), Seq("FreeBandNames"), Seq("freebandnames"))
+        val desired = Array(Seq("freebandnames"), Seq("FreeBandNames", "SecondHashtag"), Seq("freebandnames"))
 
         for (i <- 0 until df.count.toInt) {
-          for (j <- 0 until actual(i).length) {
-            assert(actual(i)(0).asInstanceOf[Seq[String]](j).equals(desired(i)(j)))
-          }
+          assert(actual(i)(0).equals(desired(i)))
         }
       }
     }

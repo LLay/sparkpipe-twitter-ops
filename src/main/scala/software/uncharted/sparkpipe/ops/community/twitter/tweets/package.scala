@@ -21,6 +21,8 @@ import org.apache.spark.sql.types.{StructType, StructField, BooleanType, StringT
 import software.uncharted.sparkpipe.ops.core.dataframe.io.read
 import software.uncharted.sparkpipe.ops.core.dataframe.addColumn
 import scala.collection.mutable.{WrappedArray, ArrayBuffer}
+import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
+
 
 
 /**
@@ -59,15 +61,9 @@ package object tweets {
   * @param input Input pipeline data to transform
   * @return the dataframe with a new column containing the hashtags in the tweet
   **/
-  def hashtags(sqlContext: SQLContext, newCol: String = "hashtags", sourceCol: String = "entities.hashtags")(input: DataFrame): DataFrame = {
-    // input.registerTempTable("tweets") // Is this the best/most effecient way to do this? Do we have to register it in the hashtagExtractor?
-    val hashtagExtractor: WrappedArray[org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema] => ArrayBuffer[String] = a => {
-      val result = new ArrayBuffer[String]
-      val row = a // GenericRowWithSchema
-      val hashtags = a.asInstanceOf[WrappedArray[org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema]] // WrappedArray
-      hashtags.foreach(i => result += (i(1).asInstanceOf[String]))
-
-      result
+  def hashtags(newCol: String = "hashtags", sourceCol: String = "entities.hashtags.text")(input: DataFrame): DataFrame = {
+    val hashtagExtractor: WrappedArray[String] => WrappedArray[String] = row => {
+      row
     }
     addColumn(newCol, hashtagExtractor, sourceCol)(input)
   }
