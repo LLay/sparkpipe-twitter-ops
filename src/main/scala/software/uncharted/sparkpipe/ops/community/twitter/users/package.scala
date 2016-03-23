@@ -20,7 +20,7 @@ import org.apache.spark.sql.types.{StructType, StructField, BooleanType, StringT
 import software.uncharted.sparkpipe.ops
 
 /**
- * This package contains a twitter pipeline operations for Spark
+ * This package contains twitter pipeline operations for Spark
  * See the README or {@link software.uncharted.sparkpipe.Pipe} for more information.
  */
 package object users {
