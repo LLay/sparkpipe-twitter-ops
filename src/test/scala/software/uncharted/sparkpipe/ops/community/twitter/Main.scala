@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package software.uncharted.sparkpipe
+package software.uncharted.sparkpipe.ops.community.twitter
 
 import org.scalatest.tools.Runner
 

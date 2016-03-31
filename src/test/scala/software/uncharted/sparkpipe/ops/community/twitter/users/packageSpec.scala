@@ -17,7 +17,8 @@
 package software.uncharted.sparkpipe.ops.community.twitter.users
 
 import org.apache.spark.sql.{SQLContext, DataFrame}
-import software.uncharted.sparkpipe.{Pipe, ops, Spark}
+import software.uncharted.sparkpipe.{Pipe, ops}
+import software.uncharted.sparkpipe.ops.community.twitter.Spark
 import org.scalatest._
 
 class PackageSpec extends FunSpec {

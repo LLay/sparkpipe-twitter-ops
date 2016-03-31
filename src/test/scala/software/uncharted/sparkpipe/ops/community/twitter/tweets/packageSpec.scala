@@ -16,7 +16,8 @@
 
 package software.uncharted.sparkpipe.ops.community.twitter.tweets
 
-import software.uncharted.sparkpipe.{Pipe, ops, Spark}
+import software.uncharted.sparkpipe.{Pipe, ops}
+import software.uncharted.sparkpipe.ops.community.twitter.Spark
 import org.apache.spark.sql.{SQLContext, DataFrame}
 import org.scalatest._
 
