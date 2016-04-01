@@ -16,8 +16,9 @@
 
 package software.uncharted.sparkpipe.ops.community.twitter.users
 
+import software.uncharted.sparkpipe.{Pipe, ops}
+import software.uncharted.sparkpipe.ops.community.twitter.Spark
 import org.apache.spark.sql.{SQLContext, DataFrame}
-import software.uncharted.sparkpipe.{Pipe, ops, Spark}
 import org.scalatest._
 
 class PackageSpec extends FunSpec {
@@ -30,7 +31,7 @@ class PackageSpec extends FunSpec {
       it("should pass arguments to the underlying sparkpipe.ops.core.dataframe.io.read() API") {
         val df = ops.community.twitter.users.read(path, format)(Spark.sqlContext)
 
-        assert(df.schema.equals(USER_SCHEMA)) // is this a duplicate test of TWEET_SCHEMA?
+        assert(df.schema.equals(USER_SCHEMA)) // XXX may be subset of USER_SCHEMA
         assert(df.count == 2)
         // Other tests?
       }
@@ -40,6 +41,8 @@ class PackageSpec extends FunSpec {
       it("should match expected user schema") {
         val pipe = Pipe(Spark.sqlContext).to(ops.core.dataframe.io.read(path, format))
 
+        // FIXME Since the inferreded schema can (/will be) a subset of the official schema, this test can(will) fail.
+        // Need to make it check that all fields in the inferred schema match ones in the official schema
         assert(pipe.run.schema.equals(USER_SCHEMA))
       }
     }

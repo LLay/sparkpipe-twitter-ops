@@ -54,7 +54,7 @@ version = '0.0.1'
 project.ext {
   scalaBinaryVersion = '2.10'
   scalaVersion = '2.10.6'
-  sparkVersion = System.getenv("SPARK_VERSION") ?: '1.6.0'
+  sparkVersion = System.getenv("SPARK_VERSION") ?: '1.6.1'
   scoverageVersion = '1.1.1'
   sparkpipeVersion = '0.9.7'
   artifactName = 'sparkpipe-twitter-ops'
@@ -105,13 +105,14 @@ task testJar(type: Jar) {
 
 task test(overwrite: true, type: Exec, dependsOn: [jar, jarScoverage, testJar, docsJar, scalaStyle]) {
   executable = 'spark-submit'
-  args = ["--packages","org.mockito:mockito-all:1.10.19,org.scalatest:scalatest_${scalaBinaryVersion}:2.2.5,org.scoverage:scalac-scoverage-runtime_${scalaBinaryVersion}:${scoverageVersion},software.uncharted.sparkpipe:sparkpipe-core:${sparkpipeVersion}","--jars","/opt/sparkpipe-twitter-ops/build/libs/${artifactName}-${version}-scoverage.jar","--class","software.uncharted.sparkpipe.Main","build/libs/${artifactName}-${version}-tests.jar"]
+  args = ["--packages","org.mockito:mockito-all:1.10.19,org.scalatest:scalatest_${scalaBinaryVersion}:2.2.5,org.scoverage:scalac-scoverage-runtime_${scalaBinaryVersion}:${scoverageVersion},software.uncharted.sparkpipe:sparkpipe-core:${sparkpipeVersion}","--jars","/opt/sparkpipe-twitter-ops/build/libs/${artifactName}-${version}-scoverage.jar","--class","software.uncharted.sparkpipe.ops.community.twitter.Main","build/libs/${artifactName}-${version}-tests.jar"]
 }
 
 task debug(overwrite: true, type: Exec, dependsOn: [jar, jarScoverage, testJar, docsJar, scalaStyle]) {
   executable = 'spark-submit'
   environment.put 'SPARK_JAVA_OPTS', '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=9999'
-  args = ["--packages","org.scalatest:scalatest_${scalaBinaryVersion}:2.2.5,org.scoverage:scalac-scoverage-runtime_${scalaBinaryVersion}:${scoverageVersion},software.uncharted.sparkpipe:sparkpipe-core:${sparkpipeVersion}","--jars","/opt/sparkpipe-twitter-ops/build/libs/${artifactName}-${version}-scoverage.jar","--class","software.uncharted.sparkpipe.Main","build/libs/${artifactName}-${version}-tests.jar"]
+  args = ["--packages","org.scalatest:scalatest_${scalaBinaryVersion}:2.2.5,org.scoverage:scalac-scoverage-runtime_${scalaBinaryVersion}:${scoverageVersion},software.uncharted.sparkpipe:sparkpipe-core:${sparkpipeVersion}","--jars","/opt/sparkpipe-twitter-ops/build/libs/${artifactName}-${version}-scoverage.jar","--class","software.uncharted.sparkpipe.ops.community.twitter.Main","build/libs/${artifactName}-${version}-tests.jar"]
+}
 }
 
 task coverage(overwrite: true, dependsOn: test) << {
@@ -179,6 +180,11 @@ uploadArchives {
             id = 'smcintyre'
             name = 'Sean McIntyre'
             email = 'smcintyre@uncharted.software'
+          }
+          developer {
+          id = 'llay'
+          name = 'Lyon Lay'
+          email = 'llay@uncharted.software'
           }
         }
       }

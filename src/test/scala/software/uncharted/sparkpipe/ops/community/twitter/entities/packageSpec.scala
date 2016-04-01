@@ -20,12 +20,5 @@ import org.scalatest._
 
 class PackageSpec extends FunSpec {
   describe("ops.community.twitter.entities") {
-    // describe("ENTITY_SCHEMA") {
-    //   it("should match expected schema") {
-    //     val pipe = Pipe(Spark.sqlContext).to(ops.core.dataframe.io.read(path, format))
-    //     val df = pipe.run.select("entities")
-    //     assert(pipe.run.schema.equals(TWEET_SCHEMA))
-    //   }
-    // }
   }
 }
