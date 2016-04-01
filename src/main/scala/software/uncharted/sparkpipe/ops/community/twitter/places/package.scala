@@ -22,18 +22,6 @@ import org.apache.spark.sql.types.{StructType, StructField, BooleanType, StringT
  */
 package object places {
 
-  val PLACE_SCHEMA = StructType(Seq(
-    StructField("attributes", ATTRIBUTE_SCHEMA, true),
-    StructField("bounding_box", BOUNDING_BOX_SCHEMA, true),
-    StructField("country", StringType, true),
-    StructField("country_code", StringType, true),
-    StructField("full_name", StringType, true),
-    StructField("id", StringType, true),
-    StructField("name", StringType, true),
-    StructField("place_type", StringType, true),
-    StructField("url", StringType, true)
-  ))
-
   val ATTRIBUTE_SCHEMA = StructType(Seq(
     StructField("street_address", StringType, true),
     StructField("locality", StringType, true),
@@ -49,5 +37,17 @@ package object places {
   val BOUNDING_BOX_SCHEMA = StructType(Seq(
     StructField("coordinates", ArrayType(ArrayType(ArrayType(DoubleType, true), true), true), true),
     StructField("type", StringType, true)
+  ))
+
+  val PLACE_SCHEMA = StructType(Seq(
+    StructField("attributes", ATTRIBUTE_SCHEMA, true),
+    StructField("bounding_box", BOUNDING_BOX_SCHEMA, true),
+    StructField("country", StringType, true),
+    StructField("country_code", StringType, true),
+    StructField("full_name", StringType, true),
+    StructField("id", StringType, true),
+    StructField("name", StringType, true),
+    StructField("place_type", StringType, true),
+    StructField("url", StringType, true)
   ))
 }

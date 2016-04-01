@@ -30,10 +30,14 @@ class PackageSpec extends FunSpec {
     describe("#read()") {
       it("should pass arguments to the underlying sparkpipe.ops.core.dataframe.io.read() API") {
         val df = ops.community.twitter.tweets.read(path, format)(Spark.sqlContext)
+        val desired = Array( "ercanerol1981", "nail_ahmet", "Acerinox71", "machadodz", "NiaLCreecy", "Dirk2112", "NolaRobz", "JeraldSays", "DrMerylinne", "StacyBrewer18", "taybaybent", "davidbrunnstrom", "mark_markac60", "christineottery", "AlainaKitten")
+        val actual = df.select("user.screen_name").collect
 
-        assert(df.schema.equals(TWEET_SCHEMA)) // XXX may be subset of TWEET_SCHEMA
-        assert(df.count == 3)
+        assert(df.count == 15)
         // XXX Other tests?
+        for (i <- 0 until df.count.toInt) {
+          assert(actual(i)(0).equals(desired(i)))
+        }
       }
     }
 

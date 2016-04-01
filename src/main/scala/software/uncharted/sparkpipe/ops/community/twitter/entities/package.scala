@@ -21,19 +21,12 @@ import org.apache.spark.sql.types.{StructType, StructField, BooleanType, StringT
  *
  */
 package object entities {
-  // scalastyle:off  multiple.string.literals
-  val ENTITY_SCHEMA = StructType(Seq(
-    StructField("hashtags", HASHTAG_SCHEMA, true),
-    StructField("media", ArrayType(MEDIA_SCHEMA, true), true),
-    StructField("symbols", ArrayType(StringType,true),true), // Not in docs, but is in tweets
-    StructField("urls", ArrayType(URL_SCHEMA, true), true),
-    StructField("user_mentions", ArrayType(USER_MENTION_SCHEMA, true), true)
-  ))
-  // scalastyle:on
-
-  // scalastyle:off  multiple.string.literals
-  val EXTENDED_ENTITY_SCHEMA = None
-  // scalastyle:on
+  // StructField("sizes",StructType(Seq(
+  //   StructField("large",SIZE_SCHEMA,true),
+  //   StructField("medium",SIZE_SCHEMA,true),
+  //   StructField("small",SIZE_SCHEMA,true),
+  //   StructField("thumb",SIZE_SCHEMA,true)
+  // )),true),
 
   // scalastyle:off  multiple.string.literals
   val HASHTAG_SCHEMA = StructType(Seq(
@@ -41,37 +34,6 @@ package object entities {
     StructField("text", StringType, true)
   ))
   // scalastyle:on
-
-  // scalastyle:off  multiple.string.literals
-  val MEDIA_SCHEMA = StructType(Seq(
-    // StructField("display_url",StringType,true),
-    // StructField("expanded_url",StringType,true),
-    // StructField("id",LongType,true),
-    // StructField("id_str",StringType,true),
-    // StructField("indices",ArrayType(LongType,true),true),
-    // StructField("media_url",StringType,true),
-    // StructField("media_url_https",StringType,true),
-    // StructField("sizes", SIZES_SCHEMA, true),
-    // StructField("source_status_id", LongType, true), // Docs types this as Int64, which redirects to 'sizes', but tweet inffered it as LongType
-    // StructField("source_status_id_str", StringType, true),
-    // StructField("source_user_id",LongType,true), // Not in docs but in tweet
-    // StructField("source_user_id_str",StringType,true), // Not in docs but in tweet
-    // StructField("type",StringType,true),
-    // StructField("url",StringType,true)
-
-    StructField("display_url",StringType,true),
-    StructField("expanded_url",StringType,true),
-    StructField("id",LongType,true),
-    StructField("id_str",StringType,true),
-    StructField("indices",ArrayType(LongType,true),true),
-    StructField("media_url",StringType,true),
-    StructField("media_url_https",StringType,true),
-    StructField("sizes", SIZES_SCHEMA, true),
-    StructField("type",StringType,true),
-    StructField("url",StringType,true)
-  ))
-  // scalastyle:on
-
 
 
   // scalastyle:off  multiple.string.literals
@@ -115,6 +77,52 @@ package object entities {
     StructField("text", StringType, true),
     StructField("indices", ArrayType(LongType, true), true)
   ))
+  // scalastyle:on
+
+  // scalastyle:off  multiple.string.literals
+  val MEDIA_SCHEMA = StructType(Seq(
+    StructField("display_url",StringType,true),
+    StructField("expanded_url",StringType,true),
+    StructField("id",LongType,true),
+    StructField("id_str",StringType,true),
+    StructField("indices",ArrayType(LongType,true),true),
+    StructField("media_url",StringType,true),
+    StructField("media_url_https",StringType,true),
+    StructField("sizes", SIZES_SCHEMA, true),
+    StructField("source_status_id", LongType, true), // Docs types this as Int64, which redirects to 'sizes', but tweet inffered it as LongType
+    StructField("source_status_id_str", StringType, true),
+    StructField("source_user_id",LongType,true), // Not in docs but in tweet
+    StructField("source_user_id_str",StringType,true), // Not in docs but in tweet
+    StructField("type",StringType,true),
+    StructField("url",StringType,true)
+  ))
+  // scalastyle:on
+
+  // scalastyle:off  multiple.string.literals
+  val ENTITY_SCHEMA = StructType(Seq(
+    StructField("hashtags", HASHTAG_SCHEMA, true),
+    StructField("media", ArrayType(MEDIA_SCHEMA, true), true),
+    StructField("symbols", ArrayType(StringType,true),true), // Not in docs, but is in tweets
+    StructField("urls", ArrayType(URL_SCHEMA, true), true),
+    StructField("user_mentions", ArrayType(USER_MENTION_SCHEMA, true), true)
+  ))
+  // scalastyle:on
+
+  // scalastyle:off  multiple.string.literals
+  val EXTENDED_ENTITY_SCHEMA = StructType(Seq(
+    StructField("media",ArrayType(StructType(Seq( // media schema
+      StructField("display_url",StringType,true),
+      StructField("expanded_url",StringType,true),
+      StructField("id",LongType,true),
+      StructField("id_str",StringType,true),
+      StructField("indices",ArrayType(LongType,true),true),
+      StructField("media_url",StringType,true),
+      StructField("media_url_https",StringType,true),
+      StructField("sizes",SIZES_SCHEMA,true),
+      StructField("type",StringType,true),
+      StructField("url",StringType,true)
+    )),true),true))
+  )
   // scalastyle:on
 
 }

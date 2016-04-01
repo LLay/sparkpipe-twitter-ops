@@ -113,7 +113,6 @@ task debug(overwrite: true, type: Exec, dependsOn: [jar, jarScoverage, testJar, 
   environment.put 'SPARK_JAVA_OPTS', '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=9999'
   args = ["--packages","org.scalatest:scalatest_${scalaBinaryVersion}:2.2.5,org.scoverage:scalac-scoverage-runtime_${scalaBinaryVersion}:${scoverageVersion},software.uncharted.sparkpipe:sparkpipe-core:${sparkpipeVersion}","--jars","/opt/sparkpipe-twitter-ops/build/libs/${artifactName}-${version}-scoverage.jar","--class","software.uncharted.sparkpipe.ops.community.twitter.Main","build/libs/${artifactName}-${version}-tests.jar"]
 }
-}
 
 task coverage(overwrite: true, dependsOn: test) << {
   reportScoverage.execute()

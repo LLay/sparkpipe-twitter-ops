@@ -30,10 +30,14 @@ class PackageSpec extends FunSpec {
     describe("#read()") {
       it("should pass arguments to the underlying sparkpipe.ops.core.dataframe.io.read() API") {
         val df = ops.community.twitter.users.read(path, format)(Spark.sqlContext)
+        val desired = Array("BarackObama", "JustinTrudeau")
+        val actual = df.select("screen_name").collect
 
-        assert(df.schema.equals(USER_SCHEMA)) // XXX may be subset of USER_SCHEMA
         assert(df.count == 2)
-        // Other tests?
+        for (i <- 0 until df.count.toInt) {
+          assert(actual(i)(0).equals(desired(i)))
+        }
+        // XXX Other tests?
       }
     }
 
@@ -42,7 +46,7 @@ class PackageSpec extends FunSpec {
         val pipe = Pipe(Spark.sqlContext).to(ops.core.dataframe.io.read(path, format))
 
         // FIXME Since the inferreded schema can (/will be) a subset of the official schema, this test can(will) fail.
-        // Need to make it check that all fields in the inferred schema match ones in the official schema
+        // Need to make it check subset, not equivalency
         assert(pipe.run.schema.equals(USER_SCHEMA))
       }
     }
