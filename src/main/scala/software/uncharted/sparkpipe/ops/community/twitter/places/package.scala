@@ -42,6 +42,7 @@ package object places {
   val PLACE_SCHEMA = StructType(Seq(
     StructField("attributes", ATTRIBUTE_SCHEMA, true),
     StructField("bounding_box", BOUNDING_BOX_SCHEMA, true),
+    StructField("contained_within",ArrayType(StringType,true),true), // Not in docs, but in tweet
     StructField("country", StringType, true),
     StructField("country_code", StringType, true),
     StructField("full_name", StringType, true),

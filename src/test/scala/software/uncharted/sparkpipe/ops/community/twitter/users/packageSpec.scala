@@ -17,7 +17,7 @@
 package software.uncharted.sparkpipe.ops.community.twitter.users
 
 import software.uncharted.sparkpipe.{Pipe, ops}
-import software.uncharted.sparkpipe.ops.community.twitter.Spark
+import software.uncharted.sparkpipe.ops.community.twitter.{Spark, Schemas}
 import org.apache.spark.sql.{SQLContext, DataFrame}
 import org.scalatest._
 
@@ -46,8 +46,9 @@ class PackageSpec extends FunSpec {
         val pipe = Pipe(Spark.sqlContext).to(ops.core.dataframe.io.read(path, format))
 
         // FIXME Since the inferreded schema can (/will be) a subset of the official schema, this test can(will) fail.
-        // Need to make it check subset, not equivalency
-        assert(pipe.run.schema.equals(USER_SCHEMA))
+        // Need to make it check subset, not equivalency.
+        // Also pipe.run.schema gives you a structure without string names or sequences whereas our schema has these things
+        assert(Schemas.subset(pipe.run.schema, USER_SCHEMA))
       }
     }
   }

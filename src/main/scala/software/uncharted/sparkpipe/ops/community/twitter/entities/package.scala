@@ -100,7 +100,7 @@ package object entities {
 
   // scalastyle:off  multiple.string.literals
   val ENTITY_SCHEMA = StructType(Seq(
-    StructField("hashtags", HASHTAG_SCHEMA, true),
+    StructField("hashtags", ArrayType(HASHTAG_SCHEMA, true),true),
     StructField("media", ArrayType(MEDIA_SCHEMA, true), true),
     StructField("symbols", ArrayType(StringType,true),true), // Not in docs, but is in tweets
     StructField("urls", ArrayType(URL_SCHEMA, true), true),

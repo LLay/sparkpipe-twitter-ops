@@ -18,6 +18,7 @@ package software.uncharted.sparkpipe.ops.community.twitter
 
 import org.scalatest.tools.Runner
 
+import org.apache.spark.sql.types.{StructType, StructField, BooleanType, StringType, LongType, ArrayType, DoubleType}
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
 import org.apache.spark.SparkConf
@@ -26,6 +27,35 @@ object Spark {
   val conf = new SparkConf().setAppName("sparkpipe-twitter-ops")
   val sc = new SparkContext(conf)
   val sqlContext = new org.apache.spark.sql.SQLContext(sc)
+}
+
+object Schemas {
+  def subset(a:StructType, b:StructType, trace:Array[String] = Array()):Boolean = {
+    val diff = a.diff(b)
+    return diff.foldLeft(true){ (z, field) =>
+      val newTrace = trace :+ field.name
+
+      if (field.dataType.isInstanceOf[StructType]) {
+        z && subset(
+          a(field.name).dataType.asInstanceOf[StructType],
+          b(field.name).dataType.asInstanceOf[StructType],
+          newTrace)
+
+      } else if (field.dataType.isInstanceOf[ArrayType] && field.dataType.asInstanceOf[ArrayType].elementType.isInstanceOf[StructType]){
+        z && subset(
+          a(field.name).dataType.asInstanceOf[ArrayType].elementType.asInstanceOf[StructType],
+          b(field.name).dataType.asInstanceOf[ArrayType].elementType.asInstanceOf[StructType],
+          newTrace)
+
+      } else {
+        val traceString = newTrace.mkString(".")
+        println(s"In a but different/not in b: $traceString")
+        println(s"a: $field")
+        println("b", b(field.name))
+        return false // was not nested, branches differed
+      }
+    }
+  }
 }
 
 object Main {
