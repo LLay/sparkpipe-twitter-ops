@@ -30,28 +30,32 @@ object Spark {
 }
 
 object Schemas {
+
+  def printError(afield:StructField, b:StructType, trace: Array[String]) = {
+    val traceString = newTrace.mkString(".")
+    val bfield = b(field.name)
+    println(s"In a but different/not in b: $traceString")
+    println(s"a: $afield")
+    println(s"b: $bfield")
+  }
+
   def subset(a:StructType, b:StructType, trace:Array[String] = Array()):Boolean = {
     val diff = a.diff(b)
     return diff.foldLeft(true){ (z, field) =>
       val newTrace = trace :+ field.name
-
       if (field.dataType.isInstanceOf[StructType]) {
         z && subset(
           a(field.name).dataType.asInstanceOf[StructType],
           b(field.name).dataType.asInstanceOf[StructType],
           newTrace)
-
       } else if (field.dataType.isInstanceOf[ArrayType] && field.dataType.asInstanceOf[ArrayType].elementType.isInstanceOf[StructType]){
+        printError(field, b, newTrace)
         z && subset(
           a(field.name).dataType.asInstanceOf[ArrayType].elementType.asInstanceOf[StructType],
           b(field.name).dataType.asInstanceOf[ArrayType].elementType.asInstanceOf[StructType],
           newTrace)
-
       } else {
-        val traceString = newTrace.mkString(".")
-        println(s"In a but different/not in b: $traceString")
-        println(s"a: $field")
-        println("b", b(field.name))
+        printError(field, b, newTrace)
         return false // was not nested, branches differed
       }
     }

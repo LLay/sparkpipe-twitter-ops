@@ -25,6 +25,7 @@ import software.uncharted.sparkpipe.ops
 */
 package object users {
 
+
   // scalastyle:off  line.size.limit multiple.string.literals
   val USER_SCHEMA:StructType = StructType(Seq(
     StructField("contributors_enabled",BooleanType,true),
@@ -32,16 +33,11 @@ package object users {
     StructField("default_profile",BooleanType,true),
     StructField("default_profile_image",BooleanType,true),
     StructField("description",StringType,true),
-    StructField("entities",StructType(Seq( // XXX DOES NOT MATCH ENTITY OBJECT IN DOCS
+    StructField("entities",StructType(Seq( // Does not match entity object in docs
       StructField("description",StructType(
         Seq(
           StructField("urls",ArrayType(
-            StructType(Seq(
-                StructField("display_url",StringType,true),
-                StructField("expanded_url",StringType,true),
-                StructField("indices",ArrayType(LongType),true),
-                StructField("url",StringType,true)
-              )),true
+            StringType, true
           ),true
         )
       )
@@ -84,7 +80,7 @@ package object users {
         StructField("contributors",StringType,true),
         StructField("coordinates",StringType,true),
         StructField("created_at",StringType,true),
-        StructField("entities", entities.ENTITY_SCHEMA, true),
+        StructField("entities", entities.ENTITY_SCHEMA_WITH_SIMPLIFIED_USER_MENTIONS, true),
         StructField("extended_entities",entities.EXTENDED_ENTITY_SCHEMA,true),
         StructField("favorite_count",LongType,true),
         StructField("favorited",BooleanType,true),
@@ -113,8 +109,23 @@ package object users {
       StructField("verified",BooleanType,true)))
   // scalastyle:on
 
+  val USER_SCHEMA_WITH_EXTENDED_ENTITY:StructType = StructType(USER_SCHEMA // change retweeted_status.user.entities.description.urls from StringType to StructType
+    .filterNot(s => {s.name == "entities"}))
+    .add("entities", StructType(Seq( // required for retweeted_status.user.entities.description.urls
+      StructField("description",StructType(Seq(
+        StructField("urls",ArrayType(
+          StructType(Seq(
+              StructField("display_url",StringType,true),
+              StructField("expanded_url",StringType,true),
+              StructField("indices",ArrayType(LongType),true),
+              StructField("url",StringType,true)
+      )),true),true))),true),
+      StructField("url",StructType(Seq(
+        StructField("urls",ArrayType(entities.URL_SCHEMA,true),true)
+    )),true))), true)
+
   /**
-  * Create a DataFrame from an input data source ... containing tweets from the twitter rest api]
+  * Create a DataFrame from an input data source containing tweets from the twitter rest api]
   *
   * @param path A format-specific location String for the source data
   * @param format Specifies the input data source format (parquet by default)

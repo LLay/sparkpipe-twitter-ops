@@ -53,7 +53,7 @@ package object tweets {
     StructField("entities",entities.ENTITY_SCHEMA,true),
     StructField("favorite_count",LongType,true),
     StructField("favorited",BooleanType,true),
-    StructField("filter_level", StringType, true),  // Depricated, uses coordinate instead. Using StringType as placeholder
+    StructField("filter_level", StringType, true),  // Depricated, uses coordinate instead.
     StructField("geo",StringType,true),
     StructField("id",LongType,true),
     StructField("id_str",StringType,true),
@@ -80,11 +80,17 @@ package object tweets {
     StructField("source",StringType,true),
     StructField("text",StringType,true),
     StructField("truncated",BooleanType,true),
-    StructField("user",users.USER_SCHEMA,true),
+    StructField("user",users.USER_SCHEMA,true), // tweet.user.entities.description.urls must be string type
     StructField("withheld_copyright", BooleanType, true),
     StructField("withheld_in_countries", ArrayType(StringType, true), true),
     StructField("withheld_scope", StringType, true)
   ))
+  // scalastyle:on
+
+  // scalastyle:off multiple.string.literals
+  val TWEET_SCHEMA_BASE_WITH_EXENDED_USER:StructType = StructType(TWEET_SCHEMA_BASE
+    .filterNot(s => {s.name == "user"}))
+    .add("user", users.USER_SCHEMA_WITH_EXTENDED_ENTITY, true)
   // scalastyle:on
 
   // scalastyle:off multiple.string.literals
@@ -93,7 +99,7 @@ package object tweets {
     .add("place",places.PLACE_SCHEMA,true)
     .add("in_reply_to_status_id",LongType,true)
     .add("in_reply_to_user_id",LongType,true)
-    .add("retweeted_status",TWEET_SCHEMA_BASE,true)
+    .add("retweeted_status",TWEET_SCHEMA_BASE_WITH_EXENDED_USER,true) // tweet.user.retweeted_status.user.entities.description.urls must be StructType
     .add("quoted_status", TWEET_SCHEMA_BASE, true)
   // scalastyle:on
 
