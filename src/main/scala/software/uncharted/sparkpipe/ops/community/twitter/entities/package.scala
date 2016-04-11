@@ -22,31 +22,40 @@ import org.apache.spark.sql.types.{StructType, StructField, BooleanType, StringT
  */
 package object entities {
 
+  // scalastyle:off  multiple.string.literals
   val HASHTAG_SCHEMA = StructType(Seq(
     StructField("indices", ArrayType(LongType,true), true),
     StructField("text", StringType, true)
   ))
+  // scalastyle:on
 
+  // scalastyle:off  multiple.string.literals
   val URL_SCHEMA = StructType(Seq(
     StructField("display_url", StringType, true),
     StructField("expanded_url", StringType, true),
     StructField("indices", ArrayType(LongType, true), true),
     StructField("url", StringType, true)
   ))
+  // scalastyle:on
 
+  // scalastyle:off  multiple.string.literals
   val SIZE_SCHEMA = StructType(Seq(
     StructField("h", LongType, true),
     StructField("resize", StringType, true),
     StructField("w", LongType, true)
   ))
+  // scalastyle:on
 
+  // scalastyle:off  multiple.string.literals
   val SIZES_SCHEMA = StructType(Seq(
     StructField("large", SIZE_SCHEMA, true),
     StructField("medium", SIZE_SCHEMA, true),
     StructField("small", SIZE_SCHEMA, true),
     StructField("thumb", SIZE_SCHEMA, true)
   ))
+  // scalastyle:on
 
+  // scalastyle:off  multiple.string.literals
   val USER_MENTION_SCHEMA = StructType(Seq(
     StructField("id", LongType, true), // Docs types this as Int64, which redirects to 'sizes', but tweet inffered it as LongType
     StructField("id_str", StringType, true),
@@ -54,12 +63,16 @@ package object entities {
     StructField("name", StringType, true),
     StructField("screen_name", StringType, true)
   ))
+  // scalastyle:on
 
+  // scalastyle:off  multiple.string.literals
   val SYMBOL_SCHEMA = StructType(Seq(
     StructField("text", StringType, true),
     StructField("indices", ArrayType(LongType, true), true)
   ))
+  // scalastyle:on
 
+  // scalastyle:off  multiple.string.literals
   val MEDIA_SCHEMA = StructType(Seq(
     StructField("display_url",StringType,true),
     StructField("expanded_url",StringType,true),
@@ -76,7 +89,9 @@ package object entities {
     StructField("type",StringType,true),
     StructField("url",StringType,true)
   ))
+  // scalastyle:on
 
+  // scalastyle:off  multiple.string.literals
   val ENTITY_SCHEMA = StructType(Seq(
     StructField("hashtags", ArrayType(HASHTAG_SCHEMA, true),true),
     StructField("media", ArrayType(MEDIA_SCHEMA, true), true),
@@ -84,7 +99,9 @@ package object entities {
     StructField("urls", ArrayType(URL_SCHEMA, true), true),
     StructField("user_mentions", ArrayType(USER_MENTION_SCHEMA, true), true)
   ))
+  // scalastyle:on
 
+  // scalastyle:off  multiple.string.literals
   val ENTITY_SCHEMA_WITH_SIMPLIFIED_USER_MENTIONS = StructType(Seq(
     StructField("hashtags", ArrayType(HASHTAG_SCHEMA, true),true),
     StructField("media", ArrayType(MEDIA_SCHEMA, true), true),
@@ -92,7 +109,9 @@ package object entities {
     StructField("urls", ArrayType(URL_SCHEMA, true), true),
     StructField("user_mentions", ArrayType(StringType, true), true)
   ))
+  // scalastyle:on
 
+  // scalastyle:off  multiple.string.literals
   val EXTENDED_ENTITY_SCHEMA = StructType(Seq(
     StructField("media",ArrayType(StructType(Seq( // media schema
       StructField("display_url",StringType,true),
@@ -107,5 +126,5 @@ package object entities {
       StructField("url",StringType,true)
     )),true),true))
   )
-
+  // scalastyle:on
 }

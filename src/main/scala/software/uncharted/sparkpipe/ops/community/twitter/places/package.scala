@@ -22,6 +22,7 @@ import org.apache.spark.sql.types.{StructType, StructField, BooleanType, StringT
  */
 package object places {
 
+  // scalastyle:off  multiple.string.literals
   val ATTRIBUTE_SCHEMA = StructType(Seq(
     StructField("street_address", StringType, true),
     StructField("locality", StringType, true),
@@ -33,12 +34,16 @@ package object places {
     StructField("url", StringType, true),
     StructField("app:id", StringType, true)
   ))
+  // scalastyle:on
 
+  // scalastyle:off  multiple.string.literals
   val BOUNDING_BOX_SCHEMA = StructType(Seq(
     StructField("coordinates", ArrayType(ArrayType(ArrayType(DoubleType, true), true), true), true),
     StructField("type", StringType, true)
   ))
+  // scalastyle:on
 
+  // scalastyle:off  multiple.string.literals
   val PLACE_SCHEMA = StructType(Seq(
     StructField("attributes", ATTRIBUTE_SCHEMA, true),
     StructField("bounding_box", BOUNDING_BOX_SCHEMA, true),
@@ -51,4 +56,5 @@ package object places {
     StructField("place_type", StringType, true),
     StructField("url", StringType, true)
   ))
+  // scalastyle:on
 }

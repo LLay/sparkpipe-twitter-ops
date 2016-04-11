@@ -181,9 +181,9 @@ uploadArchives {
             email = 'smcintyre@uncharted.software'
           }
           developer {
-          id = 'llay'
-          name = 'Lyon Lay'
-          email = 'llay@uncharted.software'
+            id = 'llay'
+            name = 'Lyon Lay'
+            email = 'llay@uncharted.software'
           }
         }
       }

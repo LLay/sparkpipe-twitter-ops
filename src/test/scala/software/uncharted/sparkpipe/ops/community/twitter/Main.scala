@@ -31,12 +31,12 @@ object Spark {
 
 object Schemas {
 
-  def printError(afield:StructField, b:StructType, trace: Array[String]) = {
-    val traceString = newTrace.mkString(".")
-    val bfield = b(field.name)
+  def printError(aField:StructField, b:StructType, trace: Array[String]) = {
+    val traceString = trace.mkString(".")
+    val bField = b(aField.name)
     println(s"In a but different/not in b: $traceString")
-    println(s"a: $afield")
-    println(s"b: $bfield")
+    println(s"a: $aField")
+    println(s"b: $bField")
   }
 
   def subset(a:StructType, b:StructType, trace:Array[String] = Array()):Boolean = {
