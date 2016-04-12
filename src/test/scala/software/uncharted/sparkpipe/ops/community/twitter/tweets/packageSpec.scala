@@ -30,7 +30,6 @@ class PackageSpec extends FunSpec {
     describe("#read()") {
       it("should pass arguments to the underlying sparkpipe.ops.core.dataframe.io.read() API") {
         val df = ops.community.twitter.tweets.read(path, format)(Spark.sqlContext)
-
         assert(df.count == 15)
       }
     }
@@ -38,7 +37,6 @@ class PackageSpec extends FunSpec {
     describe("TWEET_SCHEMA") {
       it("should be a subset of the schema") {
         val pipe = Pipe(Spark.sqlContext).to(ops.core.dataframe.io.read(path, format))
-
         assert(Schemas.subset(pipe.run.schema, TWEET_SCHEMA))
       }
     }

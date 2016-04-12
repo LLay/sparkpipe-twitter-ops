@@ -37,14 +37,12 @@ class PackageSpec extends FunSpec {
         for (i <- 0 until df.count.toInt) {
           assert(actual(i)(0).equals(desired(i)))
         }
-        // XXX Other tests?
       }
     }
 
     describe("USER_SCHEMA") {
       it("should be a subset of the user schema") {
         val pipe = Pipe(Spark.sqlContext).to(ops.core.dataframe.io.read(path, format))
-
         assert(Schemas.subset(pipe.run.schema, USER_SCHEMA))
       }
     }
