@@ -16,9 +16,9 @@
 
 package software.uncharted.sparkpipe.ops.community.twitter.users
 
-import org.apache.spark.sql.{SQLContext, DataFrame}
 import software.uncharted.sparkpipe.{Pipe, ops}
-import software.uncharted.sparkpipe.ops.community.twitter.Spark
+import software.uncharted.sparkpipe.ops.community.twitter.{Spark, Schemas}
+import org.apache.spark.sql.{SQLContext, DataFrame}
 import org.scalatest._
 
 class PackageSpec extends FunSpec {
@@ -30,18 +30,20 @@ class PackageSpec extends FunSpec {
     describe("#read()") {
       it("should pass arguments to the underlying sparkpipe.ops.core.dataframe.io.read() API") {
         val df = ops.community.twitter.users.read(path, format)(Spark.sqlContext)
+        val desired = Array("BarackObama", "JustinTrudeau")
+        val actual = df.select("screen_name").collect
 
-        assert(df.schema.equals(USER_SCHEMA)) // is this a duplicate test of TWEET_SCHEMA?
         assert(df.count == 2)
-        // Other tests?
+        for (i <- 0 until df.count.toInt) {
+          assert(actual(i)(0).equals(desired(i)))
+        }
       }
     }
 
     describe("USER_SCHEMA") {
-      it("should match expected user schema") {
+      it("should be a subset of the user schema") {
         val pipe = Pipe(Spark.sqlContext).to(ops.core.dataframe.io.read(path, format))
-
-        assert(pipe.run.schema.equals(USER_SCHEMA))
+        assert(Schemas.subset(pipe.run.schema, USER_SCHEMA))
       }
     }
   }

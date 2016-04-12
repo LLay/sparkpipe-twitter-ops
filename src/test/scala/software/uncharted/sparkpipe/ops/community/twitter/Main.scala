@@ -18,6 +18,7 @@ package software.uncharted.sparkpipe.ops.community.twitter
 
 import org.scalatest.tools.Runner
 
+import org.apache.spark.sql.types.{StructType, StructField, BooleanType, StringType, LongType, ArrayType, DoubleType}
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
 import org.apache.spark.SparkConf
@@ -26,6 +27,53 @@ object Spark {
   val conf = new SparkConf().setAppName("sparkpipe-twitter-ops")
   val sc = new SparkContext(conf)
   val sqlContext = new org.apache.spark.sql.SQLContext(sc)
+}
+
+object Schemas {
+
+  /**
+  * Prints an error message describing which element of a was not an element of b
+  *
+  * @param a A StructType to compare
+  * @param b A StructType to compare
+  * @param trace The path from the root to the current recurive poisition. For Error printout
+  **/
+  def printError(aField:StructField, b:StructType, trace: Array[String]) = {
+    val traceString = trace.mkString(".")
+    val bField = b(aField.name)
+    println(s"In a but different/not in b: $traceString")
+    println(s"a: $aField")
+    println(s"b: $bField")
+  }
+
+  /**
+  * Determines if StructType a is a subset of StructType b
+  *
+  * @param a A StructType to compare
+  * @param b A StructType to compare
+  * @param trace The path from the root to the current recurive poisition. For Error printout
+  * @return Boolean indicating if a was a subset of b
+  **/
+  def subset(a:StructType, b:StructType, trace:Array[String] = Array()):Boolean = {
+    val diff = a.diff(b)
+    return diff.foldLeft(true){ (z, field) =>
+      val newTrace = trace :+ field.name
+      if (field.dataType.isInstanceOf[StructType]) { // nested structure. recurse
+        z && subset(
+          a(field.name).dataType.asInstanceOf[StructType],
+          b(field.name).dataType.asInstanceOf[StructType],
+          newTrace)
+      } else if (field.dataType.isInstanceOf[ArrayType] && field.dataType.asInstanceOf[ArrayType].elementType.isInstanceOf[StructType]){ // nested structure. recurse
+        z && subset(
+          a(field.name).dataType.asInstanceOf[ArrayType].elementType.asInstanceOf[StructType],
+          b(field.name).dataType.asInstanceOf[ArrayType].elementType.asInstanceOf[StructType],
+          newTrace)
+      } else {
+        printError(field, b, newTrace)
+        false // was not nested, branches differed. fail
+      }
+    }
+  }
 }
 
 object Main {

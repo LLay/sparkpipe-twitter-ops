@@ -1,41 +1,107 @@
 /*
- * Copyright 2016 Uncharted Software Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright 2016 Uncharted Software Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 package software.uncharted.sparkpipe.ops.community.twitter
 
 import org.apache.spark.sql.{SQLContext, DataFrame}
-import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
-import org.apache.spark.sql.types.{StructType, StructField, BooleanType, StringType, LongType, ArrayType, DoubleType}
-import software.uncharted.sparkpipe.ops
-import software.uncharted.sparkpipe.ops.core.dataframe.addColumn
+import org.apache.spark.sql.types.{StructType, StructField, BooleanType, StringType, LongType, ArrayType, DoubleType, IntegerType}
 import scala.collection.mutable.{WrappedArray, ArrayBuffer}
-import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
+import software.uncharted.sparkpipe.ops
 
 /**
- * This package contains twitter pipeline operations for Spark
- * See the README or {@link software.uncharted.sparkpipe.Pipe} for more information.
- */
+* This package contains twitter pipeline operations for Spark
+* See the README or {@link software.uncharted.sparkpipe.Pipe} for more information.
+*/
 package object tweets {
 
-  // scalastyle:off  line.size.limit multiple.string.literals
-  val TWEET_SCHEMA = StructType(Seq(StructField("contributors",StringType,true), StructField("coordinates",StringType,true), StructField("created_at",StringType,true), StructField("entities",StructType(Seq(StructField("hashtags",ArrayType(StructType(Seq(StructField("indices",ArrayType(LongType,true),true), StructField("text",StringType,true))),true),true), StructField("urls",ArrayType(StringType,true),true), StructField("user_mentions",ArrayType(StringType,true),true))),true), StructField("favorited",BooleanType,true), StructField("geo",StringType,true), StructField("id",LongType,true), StructField("id_str",StringType,true), StructField("in_reply_to_screen_name",StringType,true), StructField("in_reply_to_status_id",StringType,true), StructField("in_reply_to_status_id_str",StringType,true), StructField("in_reply_to_user_id",StringType,true), StructField("in_reply_to_user_id_str",StringType,true), StructField("metadata",StructType(Seq(StructField("iso_language_code",StringType,true), StructField("result_type",StringType,true))),true), StructField("place",StringType,true), StructField("retweet_count",LongType,true), StructField("retweeted",BooleanType,true), StructField("source",StringType,true), StructField("text",StringType,true), StructField("truncated",BooleanType,true), StructField("user",StructType(Seq(StructField("contributors_enabled",BooleanType,true), StructField("created_at",StringType,true), StructField("default_profile",BooleanType,true), StructField("default_profile_image",BooleanType,true), StructField("description",StringType,true), StructField("entities",StructType(Seq(StructField("description",StructType(Seq(StructField("urls",ArrayType(StringType,true),true))),true), StructField("url",StructType(Seq(StructField("urls",ArrayType(StructType(Seq(StructField("expanded_url",StringType,true), StructField("indices",ArrayType(LongType,true),true), StructField("url",StringType,true))),true),true))),true))),true), StructField("favourites_count",LongType,true), StructField("follow_request_sent",StringType,true), StructField("followers_count",LongType,true), StructField("following",StringType,true), StructField("friends_count",LongType,true), StructField("geo_enabled",BooleanType,true), StructField("id",LongType,true), StructField("id_str",StringType,true), StructField("is_translator",BooleanType,true), StructField("lang",StringType,true), StructField("listed_count",LongType,true), StructField("location",StringType,true), StructField("name",StringType,true), StructField("notifications",StringType,true), StructField("profile_background_color",StringType,true), StructField("profile_background_image_url",StringType,true), StructField("profile_background_image_url_https",StringType,true), StructField("profile_background_tile",BooleanType,true), StructField("profile_image_url",StringType,true), StructField("profile_image_url_https",StringType,true), StructField("profile_link_color",StringType,true), StructField("profile_sidebar_border_color",StringType,true), StructField("profile_sidebar_fill_color",StringType,true), StructField("profile_text_color",StringType,true), StructField("profile_use_background_image",BooleanType,true), StructField("protected",BooleanType,true), StructField("screen_name",StringType,true), StructField("show_all_inline_media",BooleanType,true), StructField("statuses_count",LongType,true), StructField("time_zone",StringType,true), StructField("url",StringType,true), StructField("utc_offset",LongType,true), StructField("verified",BooleanType,true))),true)))
+  // scalastyle:off  multiple.string.literals
+  val CONTRIBUTER_SCHEMA = StructType(Seq(
+    StructField("id", entities.SIZE_SCHEMA, false),
+    StructField("id_str", StringType, true),
+    StructField("screen_name", StringType, true)
+  ))
   // scalastyle:on
-  // val ANNOTATION_SCHEMA = None //(docs: unused. future/beta home for status annotations.)
-  val CONTRIBUTER_SCHEMA = None
-  val COORDINATE_SCHEMA = None
-  val EXTENDED_ENTITY_SCHEMA = None
+
+  // scalastyle:off  multiple.string.literals
+  val COORDINATE_SCHEMA = StructType(Seq(
+    StructField("coordinates", ArrayType(DoubleType, true), true), // collection of float
+    StructField("type", StringType, true)
+  ))
+  // scalastyle:on
+
+  // scalastyle:off  multiple.string.literals
+  val TWEET_SCHEMA_BASE:StructType = StructType(Seq(
+    StructField("contributors",StringType,true), // StringType in sample tweet, ArrayType(CONTRIBUTER_SCHEMA) in docs
+    StructField("coordinates",StringType,true), // StringType in sample tweet, COORDINATE_SCHEMA in docs
+    StructField("created_at",StringType,true),
+    StructField("current_user_retweet", StructType(Seq(
+      StructField("id", LongType, true),
+      StructField("id_str", StringType, true)
+    )),true),
+    StructField("entities",entities.ENTITY_SCHEMA,true),
+    StructField("favorite_count",LongType,true),
+    StructField("favorited",BooleanType,true),
+    StructField("filter_level", StringType, true),  // Depricated, uses coordinate instead.
+    StructField("geo",StringType,true),
+    StructField("id",LongType,true),
+    StructField("id_str",StringType,true),
+    StructField("in_reply_to_screen_name",StringType,true),
+    StructField("in_reply_to_status_id",StringType,true),
+    StructField("in_reply_to_status_id_str",StringType,true),
+    StructField("in_reply_to_user_id",StringType,true),
+    StructField("in_reply_to_user_id_str",StringType,true),
+    StructField("is_quote_status",BooleanType,true), // Not in docs, but found in tweet
+    StructField("lang",StringType,true),
+    StructField("metadata",StructType(Seq( // Not in docs, but found in tweet
+      StructField("iso_language_code",StringType,true),
+      StructField("result_type",StringType,true))
+    ),true),
+    StructField("place",StringType,true),
+    StructField("possibly_sensitive",BooleanType,true),
+    StructField("quoted_status_id", entities.SIZE_SCHEMA, true),
+    StructField("quoted_status_id_str", StringType, true),
+    StructField("scopes", StructType(Seq(
+      StructField("followers", BooleanType, true)
+    )), true),
+    StructField("retweet_count",LongType,true),
+    StructField("retweeted",BooleanType,true),
+    StructField("source",StringType,true),
+    StructField("text",StringType,true),
+    StructField("truncated",BooleanType,true),
+    StructField("user",users.USER_SCHEMA,true), // tweet.user.entities.description.urls must be string type
+    StructField("withheld_copyright", BooleanType, true),
+    StructField("withheld_in_countries", ArrayType(StringType, true), true),
+    StructField("withheld_scope", StringType, true)
+  ))
+  // scalastyle:on
+
+  // scalastyle:off multiple.string.literals
+  val TWEET_SCHEMA_BASE_WITH_EXENDED_USER:StructType = StructType(TWEET_SCHEMA_BASE
+    .filterNot(s => {s.name == "user"}))
+    .add("user", users.USER_SCHEMA_WITH_EXTENDED_ENTITY, true)
+  // scalastyle:on
+
+  // scalastyle:off multiple.string.literals
+  val TWEET_SCHEMA:StructType = StructType(TWEET_SCHEMA_BASE
+    .filterNot(s => {s.name == "place" || s.name == "in_reply_to_status_id" || s.name == "in_reply_to_user_id"}))
+    .add("place",places.PLACE_SCHEMA,true)
+    .add("in_reply_to_status_id",LongType,true)
+    .add("in_reply_to_user_id",LongType,true)
+    .add("retweeted_status",TWEET_SCHEMA_BASE_WITH_EXENDED_USER,true) // tweet.user.retweeted_status.user.entities.description.urls must be StructType
+    .add("quoted_status", TWEET_SCHEMA_BASE, true)
+  // scalastyle:on
 
   /**
   * Create a DataFrame from an input data source
@@ -62,9 +128,20 @@ package object tweets {
   * @return the dataframe with a new column containing the hashtags in the tweet
   **/
   def hashtags(newCol: String = "hashtags", sourceCol: String = "entities.hashtags.text")(input: DataFrame): DataFrame = {
-    val hashtagExtractor: WrappedArray[String] => WrappedArray[String] = row => {
-      row
-    }
-    addColumn(newCol, hashtagExtractor, sourceCol)(input)
+    val hashtagExtractor: WrappedArray[String] => WrappedArray[String] = row => {row}
+    ops.core.dataframe.addColumn(newCol, hashtagExtractor, sourceCol)(input)
+  }
+
+  /**
+  * Create a new column in the given dataframe of hashtags present in the tweet text
+  *
+  * @param newCol The column into which to put the user mentions
+  * @param sourceCol The column from which to get the user mentions
+  * @param input Input pipeline data to transform
+  * @return the dataframe with a new column containing the user mentions in the tweet
+  **/
+  def mentions(newCol: String = "mentions", sourceCol: String = "entities.user_mentions.screen_name")(input: DataFrame): DataFrame = {
+    val hashtagExtractor: WrappedArray[String] => WrappedArray[String] = row => {row}
+    ops.core.dataframe.addColumn(newCol, hashtagExtractor, sourceCol)(input)
   }
 }
