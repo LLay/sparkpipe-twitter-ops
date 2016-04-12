@@ -104,6 +104,13 @@ package object tweets {
   // scalastyle:on
 
   /**
+  * A dummy function to take and return a row
+  *
+  * @return a Row that was passed to it
+  */
+  val columnExtractor: WrappedArray[String] => WrappedArray[String] = row => {row}
+
+  /**
   * Create a DataFrame from an input data source
   *
   * @param path A format-specific location String for the source data
@@ -127,9 +134,8 @@ package object tweets {
   * @param input Input pipeline data to transform
   * @return the dataframe with a new column containing the hashtags in the tweet
   **/
-  def hashtags(newCol: String = "hashtags", sourceCol: String = "entities.hashtags.text")(input: DataFrame): DataFrame = {
-    val hashtagExtractor: WrappedArray[String] => WrappedArray[String] = row => {row}
-    ops.core.dataframe.addColumn(newCol, hashtagExtractor, sourceCol)(input)
+  def extractHashtags(newCol: String = "hashtags", sourceCol: String = "entities.hashtags.text")(input: DataFrame): DataFrame = {
+    ops.core.dataframe.addColumn(newCol, columnExtractor, sourceCol)(input)
   }
 
   /**
@@ -140,8 +146,7 @@ package object tweets {
   * @param input Input pipeline data to transform
   * @return the dataframe with a new column containing the user mentions in the tweet
   **/
-  def mentions(newCol: String = "mentions", sourceCol: String = "entities.user_mentions.screen_name")(input: DataFrame): DataFrame = {
-    val hashtagExtractor: WrappedArray[String] => WrappedArray[String] = row => {row}
-    ops.core.dataframe.addColumn(newCol, hashtagExtractor, sourceCol)(input)
+  def extractMentions(newCol: String = "mentions", sourceCol: String = "entities.user_mentions.screen_name")(input: DataFrame): DataFrame = {
+    ops.core.dataframe.addColumn(newCol, columnExtractor, sourceCol)(input)
   }
 }

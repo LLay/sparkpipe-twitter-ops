@@ -41,9 +41,9 @@ class PackageSpec extends FunSpec {
       }
     }
 
-    describe("#hashtags()") {
+    describe("#extractHashtags()") {
       it("should create a new column of hashtags present in the tweet text") {
-        val pipe = Pipe(Spark.sqlContext).to(read(path, format)).to(hashtags())
+        val pipe = Pipe(Spark.sqlContext).to(read(path, format)).to(extractHashtags())
         val df = pipe.run
         val actual = df.select("hashtags").collect
         val desired = Array(Seq("WeLoveErdo\u011fan"), Seq(), Seq("TTIP", "TPP"), Seq(), Seq(), Seq(), Seq(), Seq(), Seq("Obama"), Seq(), Seq(), Seq("Obama", "nuclear"), Seq(), Seq(), Seq())
@@ -54,9 +54,9 @@ class PackageSpec extends FunSpec {
       }
     }
 
-    describe("#mentions()") {
+    describe("#extractMentions()") {
       it("should create a new column of user mentions present in the tweet text") {
-        val pipe = Pipe(Spark.sqlContext).to(read(path, format)).to(mentions())
+        val pipe = Pipe(Spark.sqlContext).to(read(path, format)).to(extractMentions())
         val df = pipe.run
         val actual = df.select("mentions").collect
         val desired = Array(Seq("seZen__333"), Seq("AbdulkerimYakut"), Seq("Matthijs85"), Seq("PoliticaDivan"), Seq(), Seq("TPM"), Seq(), Seq("DragonflyJonez"), Seq(), Seq("steph93065"), Seq("bootymath"), Seq("mattspetalnick", "mattspetalnick", "davidbrunnstrom"), Seq("heavenlyitalian"), Seq(), Seq("AP"))
