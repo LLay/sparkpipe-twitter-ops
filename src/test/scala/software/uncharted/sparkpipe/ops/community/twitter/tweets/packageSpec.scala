@@ -17,7 +17,7 @@
 package software.uncharted.sparkpipe.ops.community.twitter.tweets
 
 import software.uncharted.sparkpipe.{Pipe, ops}
-import software.uncharted.sparkpipe.ops.community.twitter.Spark
+import software.uncharted.sparkpipe.ops.community.twitter.{Spark, Schemas}
 import org.apache.spark.sql.{SQLContext, DataFrame}
 import org.scalatest._
 
@@ -31,17 +31,15 @@ class PackageSpec extends FunSpec {
       it("should pass arguments to the underlying sparkpipe.ops.core.dataframe.io.read() API") {
         val df = ops.community.twitter.tweets.read(path, format)(Spark.sqlContext)
 
-        assert(df.schema.equals(TWEET_SCHEMA))
-        assert(df.count == 3)
-        // XXX Other tests?
+        assert(df.count == 15)
       }
     }
 
     describe("TWEET_SCHEMA") {
-      it("should match expected schema") {
+      it("should be a subset of the schema") {
         val pipe = Pipe(Spark.sqlContext).to(ops.core.dataframe.io.read(path, format))
 
-        assert(pipe.run.schema.equals(TWEET_SCHEMA))
+        assert(Schemas.subset(pipe.run.schema, TWEET_SCHEMA))
       }
     }
 
@@ -50,7 +48,20 @@ class PackageSpec extends FunSpec {
         val pipe = Pipe(Spark.sqlContext).to(read(path, format)).to(hashtags())
         val df = pipe.run
         val actual = df.select("hashtags").collect
-        val desired = Array(Seq("freebandnames"), Seq("FreeBandNames", "SecondHashtag"), Seq("freebandnames"))
+        val desired = Array(Seq("WeLoveErdo\u011fan"), Seq(), Seq("TTIP", "TPP"), Seq(), Seq(), Seq(), Seq(), Seq(), Seq("Obama"), Seq(), Seq(), Seq("Obama", "nuclear"), Seq(), Seq(), Seq())
+
+        for (i <- 0 until df.count.toInt) {
+          assert(actual(i)(0).equals(desired(i)))
+        }
+      }
+    }
+
+    describe("#mentions()") {
+      it("should create a new column of user mentions present in the tweet text") {
+        val pipe = Pipe(Spark.sqlContext).to(read(path, format)).to(mentions())
+        val df = pipe.run
+        val actual = df.select("mentions").collect
+        val desired = Array(Seq("seZen__333"), Seq("AbdulkerimYakut"), Seq("Matthijs85"), Seq("PoliticaDivan"), Seq(), Seq("TPM"), Seq(), Seq("DragonflyJonez"), Seq(), Seq("steph93065"), Seq("bootymath"), Seq("mattspetalnick", "mattspetalnick", "davidbrunnstrom"), Seq("heavenlyitalian"), Seq(), Seq("AP"))
 
         for (i <- 0 until df.count.toInt) {
           assert(actual(i)(0).equals(desired(i)))

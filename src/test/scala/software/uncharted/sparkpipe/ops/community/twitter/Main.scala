@@ -31,6 +31,13 @@ object Spark {
 
 object Schemas {
 
+  /**
+  * Prints an error message describing which element of a was not an element of b
+  *
+  * @param a A StructType to compare
+  * @param b A StructType to compare
+  * @param trace The path from the root to the current recurive poisition. For Error printout
+  **/
   def printError(aField:StructField, b:StructType, trace: Array[String]) = {
     val traceString = trace.mkString(".")
     val bField = b(aField.name)
@@ -39,24 +46,31 @@ object Schemas {
     println(s"b: $bField")
   }
 
+  /**
+  * Determines if StructType a is a subset of StructType b
+  *
+  * @param a A StructType to compare
+  * @param b A StructType to compare
+  * @param trace The path from the root to the current recurive poisition. For Error printout
+  * @return Boolean indicating if a was a subset of b
+  **/
   def subset(a:StructType, b:StructType, trace:Array[String] = Array()):Boolean = {
     val diff = a.diff(b)
     return diff.foldLeft(true){ (z, field) =>
       val newTrace = trace :+ field.name
-      if (field.dataType.isInstanceOf[StructType]) {
+      if (field.dataType.isInstanceOf[StructType]) { // nested structure. recurse
         z && subset(
           a(field.name).dataType.asInstanceOf[StructType],
           b(field.name).dataType.asInstanceOf[StructType],
           newTrace)
-      } else if (field.dataType.isInstanceOf[ArrayType] && field.dataType.asInstanceOf[ArrayType].elementType.isInstanceOf[StructType]){
-        printError(field, b, newTrace)
+      } else if (field.dataType.isInstanceOf[ArrayType] && field.dataType.asInstanceOf[ArrayType].elementType.isInstanceOf[StructType]){ // nested structure. recurse
         z && subset(
           a(field.name).dataType.asInstanceOf[ArrayType].elementType.asInstanceOf[StructType],
           b(field.name).dataType.asInstanceOf[ArrayType].elementType.asInstanceOf[StructType],
           newTrace)
       } else {
         printError(field, b, newTrace)
-        return false // was not nested, branches differed
+        false // was not nested, branches differed. fail
       }
     }
   }
