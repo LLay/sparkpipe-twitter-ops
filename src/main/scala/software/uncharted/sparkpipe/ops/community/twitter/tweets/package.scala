@@ -141,6 +141,19 @@ package object tweets {
   * @return the dataframe with a new column containing the user mentions in the tweet
   **/
   def mentions(newCol: String = "mentions", sourceCol: String = "entities.user_mentions.screen_name")(input: DataFrame): DataFrame = {
+    ops.core.dataframe.addColumn(newCol, hashtagExtractor, sourceCol)(input)
+    val hashtagExtractor: WrappedArray[String] => WrappedArray[String] = row => {row}
+  }
+
+  /**
+  * Create a new column in the given dataframe of the tweets coordinates
+  *
+  * @param newCol The column into which to put the coordinates
+  * @param sourceCol The column from which to get the coordinates
+  * @param input Input pipeline data to transform
+  * @return the dataframe with a new column containing the user mentions in the tweet
+  **/
+  def geo(newCol: String = "coordinates", sourceCol: String = "coordinates.coordinates")(input: DataFrame): DataFrame = {
     val hashtagExtractor: WrappedArray[String] => WrappedArray[String] = row => {row}
     ops.core.dataframe.addColumn(newCol, hashtagExtractor, sourceCol)(input)
   }

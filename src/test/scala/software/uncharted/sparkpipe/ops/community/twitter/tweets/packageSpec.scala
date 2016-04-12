@@ -66,5 +66,18 @@ class PackageSpec extends FunSpec {
         }
       }
     }
+
+    describe("#geo()") {
+      it("should create a new column of the lat and long coordinate of the tweet") {
+        val pipe = Pipe(Spark.sqlContext).to(read(path, format)).to(mentions())
+        val df = pipe.run
+        val actual = df.select("geo").collect
+        // val desired = Array()
+
+        for (i <- 0 until df.count.toInt) {
+          assert(actual(i)(0).equals(desired(i)))
+        }
+      }
+    }
   }
 }
