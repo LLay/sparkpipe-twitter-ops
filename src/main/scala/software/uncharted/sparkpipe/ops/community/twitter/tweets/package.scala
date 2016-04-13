@@ -19,6 +19,8 @@ import org.apache.spark.sql.{SQLContext, DataFrame}
 import org.apache.spark.sql.types.{StructType, StructField, BooleanType, StringType, LongType, ArrayType, DoubleType, IntegerType}
 import scala.collection.mutable.{WrappedArray, ArrayBuffer}
 import software.uncharted.sparkpipe.ops
+import org.apache.spark.sql.catalyst.expressions
+import org.apache.spark.sql.functions.udf
 
 /**
 * This package contains twitter pipeline operations for Spark
@@ -154,33 +156,48 @@ package object tweets {
   * Create a new column of all URLs present in the tweet object, not including those in the retweet object
   *
   * @param newCol The column into which to put the user mentions
-  * @param sourceCol The column from which to get the user mentions
   * @param input Input pipeline data to transform
   * @return the dataframe with a new column containing the user mentions in the tweet
   **/
-  def extractURLs()(input: DataFrame): DataFrame = {
+  def extractURLs(newCol: String = "urls")(input: DataFrame): DataFrame = {
     // List of columns to extract from. Not including 17 more present in the retweet object
-    // entities.media.url
-    // entities.media.display_url
-    // entities.media.expanded_url
-    // entities.media.media_url
-    // entities.media.media_url_https
-    // entities.urls.display_url
-    // entities.urls.expanded_url
-    // entities.urls.url
-    // user.entities.description.urls.display_url
-    // user.entities.description.urls.expanded_url
-    // user.entities.description.urls.url
-    // user.entities.url.urls.display_url
-    // user.entities.url.urls.expanded_url
-    // user.entities.url.urls.url
-    // user.profile_background_image_url
-    // user.profile_background_image_url_https
-    // user.profile_banner_url
-    // user.profile_image_url
-    // user.profile_image_url_https
-    // user.url
+    val sourceCols = Array(
+      "entities.media.url",
+      "entities.media.display_url",
+      "entities.media.expanded_url",
+      "entities.media.media_url",
+      "entities.media.media_url_https",
+      "entities.urls.display_url",
+      "entities.urls.expanded_url",
+      "entities.urls.url",
+      "user.entities.description.urls.display_url",
+      "user.entities.description.urls.expanded_url",
+      "user.entities.description.urls.url",
+      "user.entities.url.urls.display_url",
+      "user.entities.url.urls.expanded_url",
+      "user.entities.url.urls.url",
+      "user.profile_background_image_url",
+      "user.profile_background_image_url_https",
+      "user.profile_banner_url",
+      "user.profile_image_url",
+      "user.profile_image_url_https",
+      "user.url"
+    )
 
-    ops.core.dataframe.addColumn(newCol, columnExtractor, sourceCol)(input)
+    // Create empty column of Array[String]
+    val coder: () => Array[String] = () => {Array()}
+    val sqlfunc = udf(coder)
+    var df = input.withColumn(newCol, sqlfunc())
+
+    // Add each url source to the new column
+    val appender = (sourceUrlCol: String, urlCol: WrappedArray[String]) => {urlCol :+ sourceUrlCol}
+    val sqlfunc2 = udf(appender)
+
+    sourceCols.foreach(sourceCol => {
+      df = df.withColumnRenamed(newCol, "urlsTemp")
+      .withColumn(newCol, sqlfunc2(col(sourceCol), col("urlsTemp")))
+      .drop("urlsTemp")
+    })
+    df
   }
 }
