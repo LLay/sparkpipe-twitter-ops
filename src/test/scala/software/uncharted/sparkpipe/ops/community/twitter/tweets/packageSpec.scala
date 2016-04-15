@@ -67,6 +67,18 @@ class PackageSpec extends FunSpec {
       }
     }
 
+    describe("#extractGeo()") {
+      it("should create a new column of the lat and long coordinate of the tweet") {
+        val pipe = Pipe(Spark.sqlContext).to(read(path, format)).to(extractGeo())
+        val df = pipe.run
+        val actual = df.select("geo").collect
+        val desired = Array(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null)
+        for (i <- 0 until df.count.toInt) {
+          assert(actual(i)(0) == desired(i)) // .equals() throws NullPointerException
+        }
+      }
+    }
+
     describe("#extractURLs()") {
       it("should create a new column of all URLs present in the tweet object") {
         val pipe = Pipe(Spark.sqlContext).to(read(path, format)).to(extractURLs("urls"))

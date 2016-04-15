@@ -153,6 +153,19 @@ package object tweets {
   }
 
   /**
+  * Create a new column in the given dataframe of the tweets coordinates
+  *
+  * @param newCol The column into which to put the coordinates
+  * @param sourceCol The column from which to get the coordinates
+  * @param input Input pipeline data to transform
+  * @return the dataframe with a new column containing the user mentions in the tweet
+  **/
+  def extractGeo(newCol: String = "coordinates", sourceCol: String = "coordinates.coordinates")(input: DataFrame): DataFrame = {
+    val hashtagExtractor: WrappedArray[Double] => WrappedArray[Double] = row => {row}
+    ops.core.dataframe.addColumn(newCol, hashtagExtractor, sourceCol)(input)
+  }
+
+  /**
   * Create a new column of all URLs present in the tweet object, not including those in the retweet object
   *
   * @param newCol The column into which to put the urls
