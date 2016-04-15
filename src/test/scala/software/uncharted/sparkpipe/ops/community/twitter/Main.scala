@@ -22,6 +22,7 @@ import org.apache.spark.sql.types.{StructType, StructField, BooleanType, StringT
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
 import org.apache.spark.SparkConf
+import java.lang.IllegalArgumentException
 
 object Spark {
   val conf = new SparkConf().setAppName("sparkpipe-twitter-ops")
@@ -40,10 +41,17 @@ object Schemas {
   **/
   def printError(aField:StructField, b:StructType, trace: Array[String]) = {
     val traceString = trace.mkString(".")
-    val bField = b(aField.name)
-    println(s"In a but different/not in b: $traceString")
-    println(s"a: $aField")
-    println(s"b: $bField")
+    try {
+      val bField = b(aField.name) // XXX might fail if aField not in b. use try
+      System.err.println(s"In a but different in b: $traceString")
+      System.err.println(s"a: $aField")
+      System.err.println(s"b: $bField")
+    } catch {
+      case e:IllegalArgumentException => {
+        System.err.println(s"In a but not in b: $traceString")
+        System.err.println(s"a: $aField")
+      }
+    }
   }
 
   /**
@@ -56,7 +64,7 @@ object Schemas {
   **/
   def subset(a:StructType, b:StructType, trace:Array[String] = Array()):Boolean = {
     val diff = a.diff(b)
-    return diff.foldLeft(true){ (z, field) =>
+    return diff.foldLeft(true){ (z, field) => // recurse over the fields in this struct
       val newTrace = trace :+ field.name
       if (field.dataType.isInstanceOf[StructType]) { // nested structure. recurse
         z && subset(
@@ -68,6 +76,11 @@ object Schemas {
           a(field.name).dataType.asInstanceOf[ArrayType].elementType.asInstanceOf[StructType],
           b(field.name).dataType.asInstanceOf[ArrayType].elementType.asInstanceOf[StructType],
           newTrace)
+      } else if ( // a has string type, but b has nested structure. See issue #33
+        field.dataType.isInstanceOf[StringType] &&
+        b.fieldNames.contains(field.name) &&
+        (b(field.name).dataType.isInstanceOf[ArrayType] || b(field.name).dataType.isInstanceOf[StructType])) {
+          true
       } else {
         printError(field, b, newTrace)
         false // was not nested, branches differed. fail

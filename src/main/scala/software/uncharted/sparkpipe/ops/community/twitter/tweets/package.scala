@@ -45,8 +45,8 @@ package object tweets {
 
   // scalastyle:off  multiple.string.literals
   val TWEET_SCHEMA_BASE:StructType = StructType(Seq(
-    StructField("contributors",StringType,true), // StringType in sample tweet, ArrayType(CONTRIBUTER_SCHEMA) in docs
-    StructField("coordinates",StringType,true), // StringType in sample tweet, COORDINATE_SCHEMA in docs
+    StructField("contributors",CONTRIBUTER_SCHEMA,true), // StringType inferred in sample tweet, ArrayType(CONTRIBUTER_SCHEMA) in docs
+    StructField("coordinates",COORDINATE_SCHEMA,true), // StringType inferred in sample tweet, COORDINATE_SCHEMA in docs
     StructField("created_at",StringType,true),
     StructField("current_user_retweet", StructType(Seq(
       StructField("id", LongType, true),
