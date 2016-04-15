@@ -19,6 +19,8 @@ import org.apache.spark.sql.{SQLContext, DataFrame}
 import org.apache.spark.sql.types.{StructType, StructField, BooleanType, StringType, LongType, ArrayType, DoubleType, IntegerType}
 import scala.collection.mutable.{WrappedArray, ArrayBuffer}
 import software.uncharted.sparkpipe.ops
+import org.apache.spark.sql.catalyst.expressions
+import org.apache.spark.sql.functions.{col, udf}
 
 /**
 * This package contains twitter pipeline operations for Spark
@@ -43,8 +45,8 @@ package object tweets {
 
   // scalastyle:off  multiple.string.literals
   val TWEET_SCHEMA_BASE:StructType = StructType(Seq(
-    StructField("contributors",StringType,true), // StringType in sample tweet, ArrayType(CONTRIBUTER_SCHEMA) in docs
-    StructField("coordinates",StringType,true), // StringType in sample tweet, COORDINATE_SCHEMA in docs
+    StructField("contributors",CONTRIBUTER_SCHEMA,true), // StringType inferred in sample tweet, ArrayType(CONTRIBUTER_SCHEMA) in docs
+    StructField("coordinates",COORDINATE_SCHEMA,true), // StringType inferred in sample tweet, COORDINATE_SCHEMA in docs
     StructField("created_at",StringType,true),
     StructField("current_user_retweet", StructType(Seq(
       StructField("id", LongType, true),
@@ -104,6 +106,13 @@ package object tweets {
   // scalastyle:on
 
   /**
+  * A dummy function to take and return a row
+  *
+  * @return a Row that was passed to it
+  */
+  val columnExtractor: WrappedArray[String] => WrappedArray[String] = row => {row}
+
+  /**
   * Create a DataFrame from an input data source
   *
   * @param path A format-specific location String for the source data
@@ -127,9 +136,8 @@ package object tweets {
   * @param input Input pipeline data to transform
   * @return the dataframe with a new column containing the hashtags in the tweet
   **/
-  def hashtags(newCol: String = "hashtags", sourceCol: String = "entities.hashtags.text")(input: DataFrame): DataFrame = {
-    val hashtagExtractor: WrappedArray[String] => WrappedArray[String] = row => {row}
-    ops.core.dataframe.addColumn(newCol, hashtagExtractor, sourceCol)(input)
+  def extractHashtags(newCol: String = "hashtags", sourceCol: String = "entities.hashtags.text")(input: DataFrame): DataFrame = {
+    ops.core.dataframe.addColumn(newCol, columnExtractor, sourceCol)(input)
   }
 
   /**
@@ -140,9 +148,8 @@ package object tweets {
   * @param input Input pipeline data to transform
   * @return the dataframe with a new column containing the user mentions in the tweet
   **/
-  def mentions(newCol: String = "mentions", sourceCol: String = "entities.user_mentions.screen_name")(input: DataFrame): DataFrame = {
-    ops.core.dataframe.addColumn(newCol, hashtagExtractor, sourceCol)(input)
-    val hashtagExtractor: WrappedArray[String] => WrappedArray[String] = row => {row}
+  def extractMentions(newCol: String = "mentions", sourceCol: String = "entities.user_mentions.screen_name")(input: DataFrame): DataFrame = {
+    ops.core.dataframe.addColumn(newCol, columnExtractor, sourceCol)(input)
   }
 
   /**
@@ -153,8 +160,81 @@ package object tweets {
   * @param input Input pipeline data to transform
   * @return the dataframe with a new column containing the user mentions in the tweet
   **/
-  def geo(newCol: String = "coordinates", sourceCol: String = "coordinates.coordinates")(input: DataFrame): DataFrame = {
-    val hashtagExtractor: WrappedArray[String] => WrappedArray[String] = row => {row}
+  def extractGeo(newCol: String = "coordinates", sourceCol: String = "coordinates.coordinates")(input: DataFrame): DataFrame = {
+    val hashtagExtractor: WrappedArray[Double] => WrappedArray[Double] = row => {row}
     ops.core.dataframe.addColumn(newCol, hashtagExtractor, sourceCol)(input)
   }
+
+  /**
+  * Create a new column of all URLs present in the tweet object, not including those in the retweet object
+  *
+  * @param newCol The column into which to put the urls
+  * @param input Input pipeline data to transform
+  * @return the dataframe with a new column containing all urls in the tweet
+  **/
+  // scalastyle:off null method.length
+  def extractURLs(newCol: String = "urls")(input: DataFrame): DataFrame = {
+    // List of columns to extract from. Not including 17 more present in the retweet object
+    val sourceColsString = Array(
+      "user.profile_background_image_url",       // string
+      "user.profile_background_image_url_https", // string
+      "user.profile_banner_url",                 // string
+      "user.profile_image_url",                  // string
+      "user.profile_image_url_https",            // string
+      "user.url"                                 // string
+    )
+
+    val sourceColsArray = Array(
+      "entities.media.url",                     // array<string>
+      "entities.media.display_url",             // array<string>
+      "entities.media.expanded_url",            // array<string>
+      "entities.media.media_url",               // array<string>
+      "entities.media.media_url_https",         // array<string>
+      "entities.urls.display_url",              // array<string>
+      "entities.urls.expanded_url",             // array<string>
+      "entities.urls.url",                      // array<string>
+      "user.entities.description.urls",         // array<string>
+      "user.entities.url.urls.display_url",     // array<string>
+      "user.entities.url.urls.expanded_url",    // array<string>
+      "user.entities.url.urls.url"              // array<string>
+    )
+
+    // Create extraction function for string columns
+    val appenderString = (sourceUrlCol: String, urlCol: WrappedArray[String]) => {
+      if (sourceUrlCol != null) {urlCol :+ sourceUrlCol}
+      else {urlCol}
+    }
+    val sqlfuncString = udf(appenderString)
+
+    // Create extraction function for array<string> columns
+    val appenderArray = (sourceUrlCol: WrappedArray[String], urlCol: WrappedArray[String]) => {
+      if (sourceUrlCol != null) {urlCol.union(sourceUrlCol)}
+      else {urlCol}
+    }
+    val sqlfuncArray = udf(appenderArray)
+
+    // Create empty column of Array[String]
+    val coder: () => Array[String] = () => {Array()}
+    val sqlfunc = udf(coder)
+    var df = input.withColumn("urls", sqlfunc())
+
+    // Add each url source to the new column
+    sourceColsArray.foreach(sourceCol => {
+      df = df
+      .withColumnRenamed("urls", "urlsTemp")
+      .withColumn("urls", sqlfuncArray(col(sourceCol), col("urlsTemp")))
+      .drop("urlsTemp")
+    })
+
+    // Add each url source to the new column
+    sourceColsString.foreach(sourceCol => {
+      df = df
+      .withColumnRenamed("urls", "urlsTemp")
+      .withColumn("urls", sqlfuncString(col(sourceCol), col("urlsTemp")))
+      .drop("urlsTemp")
+    })
+
+    df
+  }
+  // scalastyle:on
 }
