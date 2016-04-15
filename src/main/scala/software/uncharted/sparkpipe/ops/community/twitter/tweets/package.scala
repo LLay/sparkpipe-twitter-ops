@@ -90,19 +90,20 @@ package object tweets {
   // scalastyle:on
 
   // scalastyle:off multiple.string.literals
-  val TWEET_SCHEMA_BASE_WITH_EXENDED_USER:StructType = StructType(TWEET_SCHEMA_BASE
-    .filterNot(s => {s.name == "user"}))
-    .add("user", users.USER_SCHEMA_WITH_EXTENDED_ENTITY, true)
+  val TWEET_SCHEMA_BASE_WITH_EXENDED_USER:StructType = util.addFields(
+    StructType(TWEET_SCHEMA_BASE.filterNot(s => {s.name == "user"})),
+    Seq(StructField("user", users.USER_SCHEMA_WITH_EXTENDED_ENTITY, true)))
   // scalastyle:on
 
   // scalastyle:off multiple.string.literals
-  val TWEET_SCHEMA:StructType = StructType(TWEET_SCHEMA_BASE
-    .filterNot(s => {s.name == "place" || s.name == "in_reply_to_status_id" || s.name == "in_reply_to_user_id"}))
-    .add("place",places.PLACE_SCHEMA,true)
-    .add("in_reply_to_status_id",LongType,true)
-    .add("in_reply_to_user_id",LongType,true)
-    .add("retweeted_status",TWEET_SCHEMA_BASE_WITH_EXENDED_USER,true) // tweet.user.retweeted_status.user.entities.description.urls must be StructType
-    .add("quoted_status", TWEET_SCHEMA_BASE, true)
+  val  TWEET_SCHEMA = util.addFields(
+    StructType(TWEET_SCHEMA_BASE.filterNot(s => {s.name == "place" || s.name == "in_reply_to_status_id" || s.name == "in_reply_to_user_id"})),
+    Seq(
+      StructField("place",places.PLACE_SCHEMA,true),
+      StructField("in_reply_to_status_id",LongType,true),
+      StructField("in_reply_to_user_id",LongType,true),
+      StructField("retweeted_status",TWEET_SCHEMA_BASE_WITH_EXENDED_USER,true), // tweet.user.retweeted_status.user.entities.description.urls must be StructType
+      StructField("quoted_status", TWEET_SCHEMA_BASE, true)))
   // scalastyle:on
 
   /**
