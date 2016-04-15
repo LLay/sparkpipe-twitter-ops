@@ -25,7 +25,6 @@ import software.uncharted.sparkpipe.ops
 */
 package object users {
 
-
   // scalastyle:off  line.size.limit multiple.string.literals
   val USER_SCHEMA:StructType = StructType(Seq(
     StructField("contributors_enabled",BooleanType,true),
@@ -104,9 +103,9 @@ package object users {
       StructField("verified",BooleanType,true)))
   // scalastyle:on
 
-  val USER_SCHEMA_WITH_EXTENDED_ENTITY:StructType = StructType(USER_SCHEMA // change retweeted_status.user.entities.description.urls from StringType to StructType
-    .filterNot(s => {s.name == "entities"}))
-    .add("entities", StructType(Seq( // required for retweeted_status.user.entities.description.urls
+  val USER_SCHEMA_WITH_EXTENDED_ENTITY:StructType = util.addFields(StructType(USER_SCHEMA // change retweeted_status.user.entities.description.urls from StringType to StructType
+    .filterNot(s => {s.name == "entities"})),
+    Seq(StructField("entities", StructType(Seq( // required for retweeted_status.user.entities.description.urls
       StructField("description",StructType(Seq(
         StructField("urls",ArrayType(
           StructType(Seq(
@@ -117,7 +116,7 @@ package object users {
       )),true),true))),true),
       StructField("url",StructType(Seq(
         StructField("urls",ArrayType(entities.URL_SCHEMA,true),true)
-    )),true))), true)
+    )),true))), true)))
 
   /**
   * Create a DataFrame from an input data source containing tweets from the twitter rest api]
