@@ -35,13 +35,8 @@ package object users {
     StructField("description",StringType,true),
     StructField("entities",StructType(Seq( // Does not match entity object in docs
       StructField("description",StructType(
-        Seq(
-          StructField("urls",ArrayType(
-            StringType, true
-          ),true
-        )
-      )
-    ),true),
+        Seq(StructField("urls",ArrayType(StringType, true),true)
+      )),true),
       StructField("url",StructType(Seq(
         StructField("urls",ArrayType(entities.URL_SCHEMA,true),true)
         )),true))

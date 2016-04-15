@@ -20,7 +20,7 @@ import org.apache.spark.sql.types.{StructType, StructField, BooleanType, StringT
 import scala.collection.mutable.{WrappedArray, ArrayBuffer}
 import software.uncharted.sparkpipe.ops
 import org.apache.spark.sql.catalyst.expressions
-import org.apache.spark.sql.functions.udf
+import org.apache.spark.sql.functions.{col, udf}
 
 /**
 * This package contains twitter pipeline operations for Spark
@@ -155,49 +155,73 @@ package object tweets {
   /**
   * Create a new column of all URLs present in the tweet object, not including those in the retweet object
   *
-  * @param newCol The column into which to put the user mentions
+  * @param newCol The column into which to put the urls
   * @param input Input pipeline data to transform
-  * @return the dataframe with a new column containing the user mentions in the tweet
+  * @return the dataframe with a new column containing all urls in the tweet
   **/
+  // scalastyle:off null method.length
   def extractURLs(newCol: String = "urls")(input: DataFrame): DataFrame = {
     // List of columns to extract from. Not including 17 more present in the retweet object
-    val sourceCols = Array(
-      "entities.media.url",
-      "entities.media.display_url",
-      "entities.media.expanded_url",
-      "entities.media.media_url",
-      "entities.media.media_url_https",
-      "entities.urls.display_url",
-      "entities.urls.expanded_url",
-      "entities.urls.url",
-      "user.entities.description.urls.display_url",
-      "user.entities.description.urls.expanded_url",
-      "user.entities.description.urls.url",
-      "user.entities.url.urls.display_url",
-      "user.entities.url.urls.expanded_url",
-      "user.entities.url.urls.url",
-      "user.profile_background_image_url",
-      "user.profile_background_image_url_https",
-      "user.profile_banner_url",
-      "user.profile_image_url",
-      "user.profile_image_url_https",
-      "user.url"
+    val sourceColsString = Array(
+      "user.profile_background_image_url",       // string
+      "user.profile_background_image_url_https", // string
+      "user.profile_banner_url",                 // string
+      "user.profile_image_url",                  // string
+      "user.profile_image_url_https",            // string
+      "user.url"                                 // string
     )
+
+    val sourceColsArray = Array(
+      "entities.media.url",                     // array<string>
+      "entities.media.display_url",             // array<string>
+      "entities.media.expanded_url",            // array<string>
+      "entities.media.media_url",               // array<string>
+      "entities.media.media_url_https",         // array<string>
+      "entities.urls.display_url",              // array<string>
+      "entities.urls.expanded_url",             // array<string>
+      "entities.urls.url",                      // array<string>
+      "user.entities.description.urls",         // array<string>
+      "user.entities.url.urls.display_url",     // array<string>
+      "user.entities.url.urls.expanded_url",    // array<string>
+      "user.entities.url.urls.url"              // array<string>
+    )
+
+    // Create extraction function for string columns
+    val appenderString = (sourceUrlCol: String, urlCol: WrappedArray[String]) => {
+      if (sourceUrlCol != null) {urlCol :+ sourceUrlCol}
+      else {urlCol}
+    }
+    val sqlfuncString = udf(appenderString)
+
+    // Create extraction function for array<string> columns
+    val appenderArray = (sourceUrlCol: WrappedArray[String], urlCol: WrappedArray[String]) => {
+      if (sourceUrlCol != null) {urlCol.union(sourceUrlCol)}
+      else {urlCol}
+    }
+    val sqlfuncArray = udf(appenderArray)
 
     // Create empty column of Array[String]
     val coder: () => Array[String] = () => {Array()}
     val sqlfunc = udf(coder)
-    var df = input.withColumn(newCol, sqlfunc())
+    var df = input.withColumn("urls", sqlfunc())
 
     // Add each url source to the new column
-    val appender = (sourceUrlCol: String, urlCol: WrappedArray[String]) => {urlCol :+ sourceUrlCol}
-    val sqlfunc2 = udf(appender)
-
-    sourceCols.foreach(sourceCol => {
-      df = df.withColumnRenamed(newCol, "urlsTemp")
-      .withColumn(newCol, sqlfunc2(col(sourceCol), col("urlsTemp")))
+    sourceColsArray.foreach(sourceCol => {
+      df = df
+      .withColumnRenamed("urls", "urlsTemp")
+      .withColumn("urls", sqlfuncArray(col(sourceCol), col("urlsTemp")))
       .drop("urlsTemp")
     })
+
+    // Add each url source to the new column
+    sourceColsString.foreach(sourceCol => {
+      df = df
+      .withColumnRenamed("urls", "urlsTemp")
+      .withColumn("urls", sqlfuncString(col(sourceCol), col("urlsTemp")))
+      .drop("urlsTemp")
+    })
+
     df
   }
+  // scalastyle:on
 }
