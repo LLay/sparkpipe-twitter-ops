@@ -90,13 +90,13 @@ package object tweets {
   // scalastyle:on
 
   // scalastyle:off multiple.string.literals
-  val TWEET_SCHEMA_BASE_WITH_EXENDED_USER:StructType = util.addFields(
+  val TWEET_SCHEMA_BASE_WITH_EXENDED_USER:StructType = ops.core.schema.addFields(
     StructType(TWEET_SCHEMA_BASE.filterNot(s => {s.name == "user"})),
     Seq(StructField("user", users.USER_SCHEMA_WITH_EXTENDED_ENTITY, true)))
   // scalastyle:on
 
   // scalastyle:off multiple.string.literals
-  val  TWEET_SCHEMA = util.addFields(
+  val  TWEET_SCHEMA = ops.core.schema.addFields(
     StructType(TWEET_SCHEMA_BASE.filterNot(s => {s.name == "place" || s.name == "in_reply_to_status_id" || s.name == "in_reply_to_user_id"})),
     Seq(
       StructField("place",places.PLACE_SCHEMA,true),

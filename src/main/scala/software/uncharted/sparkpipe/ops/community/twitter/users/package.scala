@@ -103,7 +103,7 @@ package object users {
       StructField("verified",BooleanType,true)))
   // scalastyle:on
 
-  val USER_SCHEMA_WITH_EXTENDED_ENTITY:StructType = util.addFields(StructType(USER_SCHEMA // change retweeted_status.user.entities.description.urls from StringType to StructType
+  val USER_SCHEMA_WITH_EXTENDED_ENTITY:StructType = ops.core.schema.addFields(StructType(USER_SCHEMA // change retweeted_status.user.entities.description.urls from StringType to StructType
     .filterNot(s => {s.name == "entities"})),
     Seq(StructField("entities", StructType(Seq( // required for retweeted_status.user.entities.description.urls
       StructField("description",StructType(Seq(
