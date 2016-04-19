@@ -43,7 +43,7 @@ class PackageSpec extends FunSpec {
 
     describe("#extractHashtags()") {
       it("should create a new column of hashtags present in the tweet text") {
-        val pipe = Pipe(Spark.sqlContext).to(read(path, format)).to(extractHashtags())
+        val pipe = Pipe(Spark.sqlContext).to(ops.community.twitter.tweets.read(path, format)).to(extractHashtags())
         val df = pipe.run
         val actual = df.select("hashtags").collect
         val desired = Array(Seq("WeLoveErdo\u011fan"), Seq(), Seq("TTIP", "TPP"), Seq(), Seq(), Seq(), Seq(), Seq(), Seq("Obama"), Seq(), Seq(), Seq("Obama", "nuclear"), Seq(), Seq(), Seq())
@@ -56,7 +56,7 @@ class PackageSpec extends FunSpec {
 
     describe("#extractMentions()") {
       it("should create a new column of user mentions present in the tweet text") {
-        val pipe = Pipe(Spark.sqlContext).to(read(path, format)).to(extractMentions())
+        val pipe = Pipe(Spark.sqlContext).to(ops.community.twitter.tweets.read(path, format)).to(extractMentions())
         val df = pipe.run
         val actual = df.select("mentions").collect
         val desired = Array(Seq("seZen__333"), Seq("AbdulkerimYakut"), Seq("Matthijs85"), Seq("PoliticaDivan"), Seq(), Seq("TPM"), Seq(), Seq("DragonflyJonez"), Seq(), Seq("steph93065"), Seq("bootymath"), Seq("mattspetalnick", "mattspetalnick", "davidbrunnstrom"), Seq("heavenlyitalian"), Seq(), Seq("AP"))
@@ -69,7 +69,7 @@ class PackageSpec extends FunSpec {
 
     describe("#extractGeo()") {
       it("should create a new column of the lat and long coordinate of the tweet") {
-        val pipe = Pipe(Spark.sqlContext).to(read(path, format)).to(extractGeo())
+        val pipe = Pipe(Spark.sqlContext).to(ops.community.twitter.tweets.read(path, format)).to(extractGeo())
         val df = pipe.run
         val actual = df.select("geo").collect
         val desired = Array(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null)
@@ -81,7 +81,7 @@ class PackageSpec extends FunSpec {
 
     describe("#extractURLs()") {
       it("should create a new column of all URLs present in the tweet object") {
-        val pipe = Pipe(Spark.sqlContext).to(read(path, format)).to(extractURLs("urls"))
+        val pipe = Pipe(Spark.sqlContext).to(ops.community.twitter.tweets.read(path, format)).to(extractURLs("urls"))
         val df = pipe.run
         val actual = df.select("urls").collect
         val desired = Array(
