@@ -17,7 +17,7 @@ package software.uncharted.sparkpipe.ops.community.twitter
 
 import org.apache.spark.sql.{SQLContext, DataFrame}
 import org.apache.spark.sql.types.{StructType, StructField, BooleanType, StringType, LongType, ArrayType, DoubleType, IntegerType}
-import scala.collection.mutable.{WrappedArray, ArrayBuffer}
+import scala.collection.mutable.WrappedArray
 import software.uncharted.sparkpipe.ops
 import org.apache.spark.sql.catalyst.expressions
 import org.apache.spark.sql.functions.{col, udf}
