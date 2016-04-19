@@ -1,0 +1,1 @@
+# Uncharted Spark Pipeline Twitter Operations &nbsp;[![Build Status](https://travis-ci.org/unchartedsoftware/sparkpipe-twitter-ops.svg?branch=master)](https://travis-ci.org/unchartedsoftware/sparkpipe-twitter-ops)
